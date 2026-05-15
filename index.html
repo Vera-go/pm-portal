@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PM 工作流程 Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=DM+Mono&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --blue: #0052CC; --blue-dark: #0747A6;
+    --bg: #F7F8FA; --surface: #FFFFFF;
+    --border: rgba(0,0,0,0.1); --border-hover: rgba(0,0,0,0.2);
+    --text-primary: #172B4D; --text-secondary: #5E6C84; --text-tertiary: #97A0AF;
+    --radius-md: 8px; --radius-lg: 12px;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.08); --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text-primary); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 2rem 1rem; }
+  .portal { width: 100%; max-width: 720px; background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border); box-shadow: var(--shadow-md); overflow: hidden; }
+  .header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+  .header-logo { width: 38px; height: 38px; background: var(--blue); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .header-logo svg { width: 20px; height: 20px; fill: white; }
+  .header-title { font-size: 15px; font-weight: 500; }
+  .header-sub { font-size: 12px; color: var(--text-tertiary); margin-top: 1px; }
+  .nav { padding: 0.75rem 1.5rem; border-bottom: 1px solid var(--border); background: var(--bg); }
+  .nav-item { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; padding: 5px 12px; border-radius: var(--radius-md); background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
+  .content { padding: 1.5rem; }
+  .search-label { font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; display: block; }
+  .search-row { display: flex; gap: 8px; margin-bottom: 1.5rem; }
+  .search-row input { flex: 1; font-size: 14px; font-family: 'DM Mono', monospace; padding: 9px 14px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); color: var(--text-primary); outline: none; transition: border-color 0.15s; }
+  .search-row input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(0,82,204,0.12); }
+  .search-row input::placeholder { color: var(--text-tertiary); }
+  .search-row button { padding: 9px 20px; background: var(--blue); color: white; border: none; border-radius: var(--radius-md); font-size: 14px; font-family: 'DM Sans', sans-serif; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.15s; white-space: nowrap; }
+  .search-row button:hover { background: var(--blue-dark); }
+  .empty-state { text-align: center; padding: 3rem 1rem; color: var(--text-tertiary); }
+  .empty-state svg { width: 40px; height: 40px; margin-bottom: 12px; opacity: 0.4; }
+  .empty-state p { font-size: 14px; }
+  .loading { text-align: center; padding: 2.5rem; color: var(--text-secondary); font-size: 14px; }
+  .spinner { width: 28px; height: 28px; border: 2px solid var(--border); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  .error-state { background: #FFEBE6; border: 1px solid #FFBDAD; border-radius: var(--radius-md); padding: 0.875rem 1rem; font-size: 14px; color: #BF2600; display: flex; align-items: flex-start; gap: 8px; line-height: 1.5; }
+  .result-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; animation: fadeIn 0.2s ease; }
+  .result-header { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; background: var(--bg); }
+  .result-key { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; color: var(--blue); margin-bottom: 6px; }
+  .badges { display: flex; gap: 6px; flex-wrap: wrap; }
+  .badge { font-size: 11px; font-weight: 500; padding: 2px 9px; border-radius: 20px; }
+  .badge-inprogress { background: #DEEBFF; color: #0747A6; }
+  .badge-todo { background: #F4F5F7; color: #5E6C84; }
+  .badge-done { background: #E3FCEF; color: #006644; }
+  .badge-high { background: #FFFAE6; color: #172B4D; border: 1px solid #FFE380; }
+  .badge-medium { background: #F4F5F7; color: #5E6C84; }
+  .badge-low { background: #F4F5F7; color: #97A0AF; }
+  .result-meta { text-align: right; flex-shrink: 0; }
+  .meta-label { font-size: 11px; color: var(--text-tertiary); }
+  .meta-value { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+  .result-body { padding: 1.25rem; }
+  .field-row { margin-bottom: 1.25rem; }
+  .field-row:last-child { margin-bottom: 0; }
+  .field-label { font-size: 11px; font-weight: 500; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+  .field-value { font-size: 14px; color: var(--text-primary); line-height: 1.65; }
+  .field-value.summary { font-size: 17px; font-weight: 500; line-height: 1.4; }
+  .result-footer { padding: 0.875rem 1.25rem; border-top: 1px solid var(--border); background: var(--bg); display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .footer-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+  .footer-btn { font-size: 13px; font-family: 'DM Sans', sans-serif; padding: 6px 12px; border-radius: var(--radius-md); border: 1px solid var(--border); background: var(--surface); color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.15s; }
+  .footer-btn:hover { border-color: var(--border-hover); color: var(--text-primary); box-shadow: var(--shadow-sm); }
+  .footer-btn.primary { background: var(--blue); color: white; border-color: var(--blue); font-weight: 500; }
+  .footer-btn.primary:hover { background: var(--blue-dark); border-color: var(--blue-dark); color: white; box-shadow: none; }
+  .ai-section { margin-top: 1rem; border: 1px solid #C3D9FF; border-radius: var(--radius-lg); overflow: hidden; animation: fadeIn 0.3s ease; }
+  .ai-section-header { padding: 0.75rem 1.25rem; background: #EAF0FF; display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; color: #0747A6; }
+  .ai-body { padding: 1.25rem; font-size: 14px; color: var(--text-primary); line-height: 1.75; }
+  .ai-loading { padding: 1rem 1.25rem; display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--text-secondary); }
+  .ai-loading .spinner { width: 16px; height: 16px; border-width: 2px; flex-shrink: 0; margin: 0; }
+  .history-section { margin-top: 1.25rem; }
+  .history-label { font-size: 11px; font-weight: 500; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+  .history-items { display: flex; gap: 6px; flex-wrap: wrap; }
+  .history-chip { font-size: 12px; font-family: 'DM Mono', monospace; padding: 3px 10px; border-radius: 20px; background: var(--bg); color: var(--text-secondary); border: 1px solid var(--border); cursor: pointer; transition: all 0.15s; }
+  .history-chip:hover { background: var(--surface); border-color: var(--border-hover); color: var(--text-primary); }
+  .footer-bar { margin-top: 1.5rem; font-size: 12px; color: var(--text-tertiary); text-align: center; }
+</style>
+</head>
+<body>
+
+<div class="portal">
+  <div class="header">
+    <div class="header-logo">
+      <svg viewBox="0 0 24 24"><path d="M11.571 11.286 6.857 6H2.571L8.286 12l-5.715 6h4.286l4.714-5.286.857-.857-.857-.571zm1.143 0L17.428 18h4.286L16 12l5.714-6h-4.286l-4.714 5.286-.857.857.857.571-.186-.143z"/></svg>
+    </div>
+    <div>
+      <div class="header-title">PM 工作流程 Portal</div>
+      <div class="header-sub">Jira 工單查詢系統</div>
+    </div>
+  </div>
+
+  <div class="nav">
+    <span class="nav-item">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      查詢 Jira
+    </span>
+  </div>
+
+  <div class="content">
+    <span class="search-label">輸入 Jira 單號（例如：BUG2IN1-12345）</span>
+    <div class="search-row">
+      <input type="text" id="issue-input" placeholder="BUG2IN1-12345" onkeydown="if(event.key==='Enter')queryIssue()" autocomplete="off" spellcheck="false" />
+      <button onclick="queryIssue()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        查詢
+      </button>
+    </div>
+
+    <div id="result-area">
+      <div class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        <p>輸入工單號碼開始查詢</p>
+      </div>
+    </div>
+
+    <div class="history-section" id="history-section" style="display:none">
+      <div class="history-label">最近查詢</div>
+      <div class="history-items" id="history-items"></div>
+    </div>
+  </div>
+</div>
+
+<div class="footer-bar">串接至 n8n · ec-service.asus.com/jira</div>
+
+<script>
+// 部署到 Vercel 後，API 路徑自動對應 /api/jira 和 /api/analyze
+const JIRA_API = '/api/jira';
+const ANALYZE_API = '/api/analyze';
+let history = [];
+let currentIssueData = null;
+
+async function queryIssue() {
+  const key = document.getElementById('issue-input').value.trim().toUpperCase();
+  if (!key) return;
+  const area = document.getElementById('result-area');
+  area.innerHTML = '<div class="loading"><div class="spinner"></div>查詢中...</div>';
+  try {
+    const res = await fetch(JIRA_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ issueKey: key })
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    currentIssueData = { key, data };
+    renderResult(key, data);
+    addHistory(key);
+  } catch (err) {
+    area.innerHTML = '<div class="error-state"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span>查詢失敗：' + err.message + '</span></div>';
+  }
+}
+
+function cleanDescription(text) {
+  return String(text)
+    .replace(/!image-[^!\s]+!/g, '')
+    .replace(/\[([^\]\|]+)(?:\|[^\]]+)?\]/g, function(match, label) {
+      var parts = match.slice(1,-1).split('|');
+      var url = parts.find(function(p) { return p.startsWith('http'); });
+      if (url) return '<a href="' + url + '" target="_blank" style="color:#0052CC">' + label + '</a>';
+      return label;
+    })
+    .replace(/\*([^*\n]+)\*/g, '<strong>$1</strong>')
+    .replace(/^h[1-6]\.\s*/gm, '')
+    .replace(/^\*\s/gm, '• ')
+    .replace(/\n{3,}/g, '\n\n')
+    .replace(/\n/g, '<br>');
+}
+
+function renderResult(key, data) {
+  var summary = data.summary || (data.fields && data.fields.summary) || '（無資料）';
+  var rawDesc = data.description || (data.fields && data.fields.description) || '（無描述）';
+  var status = data.status || (data.fields && data.fields.status && data.fields.status.name) || '—';
+  var assignee = data.assignee || (data.fields && data.fields.assignee && data.fields.assignee.displayName) || '未指派';
+  var priority = data.priority || (data.fields && data.fields.priority && data.fields.priority.name) || '—';
+  var statusMap = { 'In Progress': 'badge-inprogress', '進行中': 'badge-inprogress', 'To Do': 'badge-todo', '待處理': 'badge-todo', 'Done': 'badge-done', '已完成': 'badge-done' };
+  var prioMap = { 'High': 'badge-high', 'Medium': 'badge-medium', 'Low': 'badge-low' };
+  var statusCls = statusMap[status] || 'badge-todo';
+  var prioCls = prioMap[priority] || 'badge-medium';
+  var desc = cleanDescription(rawDesc);
+
+  document.getElementById('result-area').innerHTML =
+    '<div class="result-card">' +
+      '<div class="result-header">' +
+        '<div>' +
+          '<div class="result-key">' + key + '</div>' +
+          '<div class="badges">' +
+            '<span class="badge ' + statusCls + '">' + status + '</span>' +
+            '<span class="badge ' + prioCls + '">' + priority + '</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="result-meta">' +
+          '<div class="meta-label">負責人</div>' +
+          '<div class="meta-value">' + assignee + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="result-body">' +
+        '<div class="field-row"><div class="field-label">Summary</div><div class="field-value summary">' + summary + '</div></div>' +
+        '<div class="field-row"><div class="field-label">Description</div><div class="field-value">' + desc + '</div></div>' +
+      '</div>' +
+      '<div class="result-footer">' +
+        '<div class="footer-actions">' +
+          '<button class="footer-btn primary" onclick="runAI(\'checklist\')">' +
+            '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>' +
+            '產出 Checklist</button>' +
+          '<button class="footer-btn primary" onclick="runAI(\'summary\')">' +
+            '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' +
+            '主管摘要</button>' +
+        '</div>' +
+        '<div class="footer-actions">' +
+          '<button class="footer-btn" onclick="doCopy()">' +
+            '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>' +
+            '複製</button>' +
+          '<button class="footer-btn" onclick="window.open(\'https://ec-service.asus.com/jira/browse/' + key + '\',\'_blank\')">' +
+            '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>' +
+            '在 Jira 開啟</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+    '<div id="ai-area"></div>';
+}
+
+async function runAI(mode) {
+  if (!currentIssueData) return;
+  var key = currentIssueData.key;
+  var data = currentIssueData.data;
+  var summary = data.summary || (data.fields && data.fields.summary) || '';
+  var description = String(data.description || (data.fields && data.fields.description) || '')
+    .replace(/!image-[^!\s]+!/g, '')
+    .replace(/\[([^\]\|]+)(?:\|[^\]]+)?\]/g, '$1')
+    .replace(/\*([^*\n]+)\*/g, '$1');
+
+  var labels = { checklist: '需求 Checklist 分析', summary: '主管摘要' };
+  var aiArea = document.getElementById('ai-area');
+
+  aiArea.innerHTML =
+    '<div class="ai-section">' +
+      '<div class="ai-section-header">' +
+        '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>' +
+        'AI 分析：' + labels[mode] +
+      '</div>' +
+      '<div class="ai-loading"><div class="spinner"></div>AI 分析中，請稍候...</div>' +
+    '</div>';
+
+  try {
+    var res = await fetch(ANALYZE_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode: mode, issueKey: key, summary: summary, description: description })
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    var result = await res.json();
+    if (result.error) throw new Error(result.error);
+    var formatted = result.text
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\n/g, '<br>');
+    aiArea.innerHTML =
+      '<div class="ai-section">' +
+        '<div class="ai-section-header">' +
+          '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>' +
+          'AI 分析：' + labels[mode] +
+        '</div>' +
+        '<div class="ai-body">' + formatted + '</div>' +
+      '</div>';
+  } catch (err) {
+    aiArea.innerHTML =
+      '<div class="ai-section">' +
+        '<div class="ai-section-header">AI 分析</div>' +
+        '<div class="ai-body" style="color:#BF2600">分析失敗：' + err.message + '</div>' +
+      '</div>';
+  }
+}
+
+function doCopy() {
+  if (!currentIssueData) return;
+  var data = currentIssueData.data;
+  var summary = data.summary || (data.fields && data.fields.summary) || '';
+  var status = data.status || (data.fields && data.fields.status && data.fields.status.name) || '';
+  var text = currentIssueData.key + '\nSummary: ' + summary + '\nStatus: ' + status;
+  navigator.clipboard.writeText(text).then(function() {
+    var btns = document.querySelectorAll('.footer-btn');
+    btns.forEach(function(btn) {
+      if (btn.textContent.trim().includes('複製')) {
+        var original = btn.innerHTML;
+        btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> 已複製';
+        setTimeout(function() { btn.innerHTML = original; }, 1500);
+      }
+    });
+  });
+}
+
+function addHistory(key) {
+  if (history.indexOf(key) === -1) history.unshift(key);
+  if (history.length > 6) history.pop();
+  document.getElementById('history-section').style.display = 'block';
+  document.getElementById('history-items').innerHTML = history.map(function(k) {
+    return '<span class="history-chip" onclick="document.getElementById(\'issue-input\').value=\'' + k + '\';queryIssue()">' + k + '</span>';
+  }).join('');
+}
+</script>
+</body>
+</html>
