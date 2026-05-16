@@ -170,15 +170,34 @@ var queryHistory = [];
 var currentIssueData = null;
 var currentType = 'bug';
 var lastAiText = '';
+var lastKey = {
+  bug: localStorage.getItem('lastKey_bug') || '',
+  req: localStorage.getItem('lastKey_req') || ''
+};
+// 頁面載入時帶入上次的單號
+window.addEventListener('DOMContentLoaded', function() {
+  if (lastKey[currentType]) {
+    document.getElementById('issue-input').value = lastKey[currentType];
+  }
+});
 
 function selectType(type) {
+  lastKey[currentType] = document.getElementById('issue-input').value.trim().toUpperCase();
+  localStorage.setItem('lastKey_' + currentType, lastKey[currentType]);
   currentType = type;
   var bugBtn = document.getElementById('btn-bug');
   var reqBtn = document.getElementById('btn-req');
   bugBtn.className = 'type-btn' + (type === 'bug' ? ' active-bug' : '');
   reqBtn.className = 'type-btn' + (type === 'req' ? ' active-req' : '');
-  // clear result when switching type
-  if (currentIssueData) renderResult(currentIssueData.key, currentIssueData.data);
+  if (lastKey[type]) {
+    document.getElementById('issue-input').value = lastKey[type];
+  } else {
+    document.getElementById('issue-input').value = '';
+  }
+  var aiArea = document.getElementById('ai-area');
+  if (aiArea) aiArea.innerHTML = '';
+  document.getElementById('result-area').innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg><p>選擇工單類型並輸入單號開始查詢</p></div>';
+  currentIssueData = null;
 }
 
 async function queryIssue() {
@@ -195,6 +214,8 @@ async function queryIssue() {
     if (!res.ok) throw new Error('HTTP ' + res.status);
     var data = await res.json();
     currentIssueData = { key: key, data: data };
+    lastKey[currentType] = key;
+    localStorage.setItem('lastKey_' + currentType, key);
     renderResult(key, data);
     addHistory(key);
   } catch (err) {
