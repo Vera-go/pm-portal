@@ -10,19 +10,19 @@ export default async function handler(req, res) {
     const { mode, issueKey, summary, description } = req.body;
 
     const prompts = {
-      bug_reply:
-        '你是一位資深技術支援工程師，正在協助 PM 回覆 User 的 Bug 回報。\n\n' +
-        '以下是 Jira 工單內容：\n' +
-        '工單號：' + issueKey + '\n' +
-        'Summary：' + summary + '\n' +
-        'Description：' + description + '\n\n' +
-        '請以「親愛的用戶您好」開頭，用專業但親切的語氣，產出一段可以直接複製貼到 Jira comment 的回覆。\n' +
-        '內容包含：\n' +
-        '1. 感謝用戶回報\n' +
-        '2. 說明可能的原因（列出2-3個最可能的原因）\n' +
-        '3. 建議用戶可以先嘗試的解決步驟\n' +
-        '4. 說明我們正在調查並會持續更新進度\n\n' +
-        '請用繁體中文，語氣專業有禮。',
+bug_reply:
+  '你是一位資深技術支援工程師，正在協助 PM 回覆內部員工的 Bug 回報。\n\n' +
+  '以下是 Jira 工單內容：\n' +
+  '工單號：' + issueKey + '\n' +
+  'Summary：' + summary + '\n' +
+  'Description：' + description + '\n\n' +
+  '請產出一段可以直接複製貼到 Jira comment 的回覆。\n' +
+  '要求：\n' +
+  '1. 直接說明可能的原因（列出2-3個最可能的原因，簡潔條列）\n' +
+  '2. 建議可以先嘗試的解決步驟\n' +
+  '3. 說明正在調查並會更新進度\n' +
+  '不需要任何問候語、感謝語、客套話，直接進入重點。\n' +
+  '請用繁體中文，語氣簡潔專業。',
 
       req_check:
         '你是一位資深 PM，正在審查需求工單的完整性。\n\n' +
