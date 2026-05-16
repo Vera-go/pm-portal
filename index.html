@@ -355,10 +355,10 @@ function copyAiResult(btn) {
 }
 
 function addHistory(key) {
-  if (history.indexOf(key) === -1) history.unshift(key);
-  if (history.length > 6) history.pop();
+  if (queryHistory.indexOf(key) === -1) queryHistory.unshift(key);
+  if (queryHistory.length > 6) queryHistory.pop();
   document.getElementById('history-section').style.display = 'block';
-  document.getElementById('history-items').innerHTML = history.map(function(k) {
+  document.getElementById('history-items').innerHTML = queryHistory.map(function(k) {
     return '<span class="history-chip" onclick="document.getElementById(\'issue-input\').value=\'' + k + '\';queryIssue()">' + k + '</span>';
   }).join('');
 }
