@@ -15,6 +15,7 @@
     --text-primary: #172B4D; --text-secondary: #5E6C84; --text-tertiary: #97A0AF;
     --radius-md: 8px; --radius-lg: 12px;
     --shadow-sm: 0 1px 3px rgba(0,0,0,0.08); --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
+    --red: #DE350B; --green: #006644;
   }
   body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text-primary); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 2rem 1rem; }
   .portal { width: 100%; max-width: 720px; background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border); box-shadow: var(--shadow-md); overflow: hidden; }
@@ -27,12 +28,21 @@
   .nav-item { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; padding: 5px 12px; border-radius: var(--radius-md); background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
   .content { padding: 1.5rem; }
   .search-label { font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; display: block; }
+
+  /* Type selector */
+  .type-selector { display: flex; gap: 8px; margin-bottom: 1rem; }
+  .type-btn { flex: 1; padding: 8px 12px; border-radius: var(--radius-md); border: 1.5px solid var(--border); background: var(--surface); color: var(--text-secondary); font-size: 13px; font-weight: 500; font-family: 'DM Sans', sans-serif; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.15s; }
+  .type-btn:hover { border-color: var(--border-hover); color: var(--text-primary); }
+  .type-btn.active-bug { border-color: #DE350B; background: #FFEBE6; color: #DE350B; }
+  .type-btn.active-req { border-color: #0052CC; background: #DEEBFF; color: #0052CC; }
+
   .search-row { display: flex; gap: 8px; margin-bottom: 1.5rem; }
   .search-row input { flex: 1; font-size: 14px; font-family: 'DM Mono', monospace; padding: 9px 14px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); color: var(--text-primary); outline: none; transition: border-color 0.15s; }
   .search-row input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(0,82,204,0.12); }
   .search-row input::placeholder { color: var(--text-tertiary); }
   .search-row button { padding: 9px 20px; background: var(--blue); color: white; border: none; border-radius: var(--radius-md); font-size: 14px; font-family: 'DM Sans', sans-serif; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.15s; white-space: nowrap; }
   .search-row button:hover { background: var(--blue-dark); }
+
   .empty-state { text-align: center; padding: 3rem 1rem; color: var(--text-tertiary); }
   .empty-state svg { width: 40px; height: 40px; margin-bottom: 12px; opacity: 0.4; }
   .empty-state p { font-size: 14px; }
@@ -41,6 +51,7 @@
   @keyframes spin { to { transform: rotate(360deg); } }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
   .error-state { background: #FFEBE6; border: 1px solid #FFBDAD; border-radius: var(--radius-md); padding: 0.875rem 1rem; font-size: 14px; color: #BF2600; display: flex; align-items: flex-start; gap: 8px; line-height: 1.5; }
+
   .result-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; animation: fadeIn 0.2s ease; }
   .result-header { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; background: var(--bg); }
   .result-key { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; color: var(--blue); margin-bottom: 6px; }
@@ -52,6 +63,8 @@
   .badge-high { background: #FFFAE6; color: #172B4D; border: 1px solid #FFE380; }
   .badge-medium { background: #F4F5F7; color: #5E6C84; }
   .badge-low { background: #F4F5F7; color: #97A0AF; }
+  .badge-type-bug { background: #FFEBE6; color: #DE350B; }
+  .badge-type-req { background: #DEEBFF; color: #0052CC; }
   .result-meta { text-align: right; flex-shrink: 0; }
   .meta-label { font-size: 11px; color: var(--text-tertiary); }
   .meta-value { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
@@ -65,13 +78,25 @@
   .footer-actions { display: flex; gap: 6px; flex-wrap: wrap; }
   .footer-btn { font-size: 13px; font-family: 'DM Sans', sans-serif; padding: 6px 12px; border-radius: var(--radius-md); border: 1px solid var(--border); background: var(--surface); color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.15s; }
   .footer-btn:hover { border-color: var(--border-hover); color: var(--text-primary); box-shadow: var(--shadow-sm); }
-  .footer-btn.primary { background: var(--blue); color: white; border-color: var(--blue); font-weight: 500; }
-  .footer-btn.primary:hover { background: var(--blue-dark); border-color: var(--blue-dark); color: white; box-shadow: none; }
+  .footer-btn.primary-bug { background: #DE350B; color: white; border-color: #DE350B; font-weight: 500; }
+  .footer-btn.primary-bug:hover { background: #BF2600; border-color: #BF2600; color: white; box-shadow: none; }
+  .footer-btn.primary-req { background: var(--blue); color: white; border-color: var(--blue); font-weight: 500; }
+  .footer-btn.primary-req:hover { background: var(--blue-dark); border-color: var(--blue-dark); color: white; box-shadow: none; }
+
+  /* AI section */
   .ai-section { margin-top: 1rem; border: 1px solid #C3D9FF; border-radius: var(--radius-lg); overflow: hidden; animation: fadeIn 0.3s ease; }
-  .ai-section-header { padding: 0.75rem 1.25rem; background: #EAF0FF; display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; color: #0747A6; }
+  .ai-section.bug-style { border-color: #FFBDAD; }
+  .ai-section-header { padding: 0.75rem 1.25rem; background: #EAF0FF; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .ai-section.bug-style .ai-section-header { background: #FFEBE6; }
+  .ai-section-title { font-size: 13px; font-weight: 500; color: #0747A6; display: flex; align-items: center; gap: 6px; }
+  .ai-section.bug-style .ai-section-title { color: #BF2600; }
+  .copy-ai-btn { font-size: 12px; font-family: 'DM Sans', sans-serif; padding: 4px 10px; border-radius: var(--radius-md); border: 1px solid rgba(7,71,166,0.3); background: white; color: #0747A6; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: all 0.15s; flex-shrink: 0; }
+  .ai-section.bug-style .copy-ai-btn { border-color: rgba(191,38,0,0.3); color: #BF2600; }
+  .copy-ai-btn:hover { opacity: 0.8; }
   .ai-body { padding: 1.25rem; font-size: 14px; color: var(--text-primary); line-height: 1.75; }
   .ai-loading { padding: 1rem 1.25rem; display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--text-secondary); }
   .ai-loading .spinner { width: 16px; height: 16px; border-width: 2px; flex-shrink: 0; margin: 0; }
+
   .history-section { margin-top: 1.25rem; }
   .history-label { font-size: 11px; font-weight: 500; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
   .history-items { display: flex; gap: 6px; flex-wrap: wrap; }
@@ -101,6 +126,18 @@
   </div>
 
   <div class="content">
+    <span class="search-label">選擇工單類型</span>
+    <div class="type-selector">
+      <button class="type-btn active-bug" id="btn-bug" onclick="selectType('bug')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Bug / Issue
+      </button>
+      <button class="type-btn" id="btn-req" onclick="selectType('req')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Requirement
+      </button>
+    </div>
+
     <span class="search-label">輸入 Jira 單號（例如：BUG2IN1-12345）</span>
     <div class="search-row">
       <input type="text" id="issue-input" placeholder="BUG2IN1-12345" onkeydown="if(event.key==='Enter')queryIssue()" autocomplete="off" spellcheck="false" />
@@ -113,7 +150,7 @@
     <div id="result-area">
       <div class="empty-state">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-        <p>輸入工單號碼開始查詢</p>
+        <p>選擇工單類型並輸入單號開始查詢</p>
       </div>
     </div>
 
@@ -127,26 +164,37 @@
 <div class="footer-bar">串接至 n8n · ec-service.asus.com/jira</div>
 
 <script>
-// 部署到 Vercel 後，API 路徑自動對應 /api/jira 和 /api/analyze
-const JIRA_API = '/api/jira';
-const ANALYZE_API = '/api/analyze';
-let history = [];
-let currentIssueData = null;
+var JIRA_API = '/api/jira';
+var ANALYZE_API = '/api/analyze';
+var history = [];
+var currentIssueData = null;
+var currentType = 'bug';
+var lastAiText = '';
+
+function selectType(type) {
+  currentType = type;
+  var bugBtn = document.getElementById('btn-bug');
+  var reqBtn = document.getElementById('btn-req');
+  bugBtn.className = 'type-btn' + (type === 'bug' ? ' active-bug' : '');
+  reqBtn.className = 'type-btn' + (type === 'req' ? ' active-req' : '');
+  // clear result when switching type
+  if (currentIssueData) renderResult(currentIssueData.key, currentIssueData.data);
+}
 
 async function queryIssue() {
-  const key = document.getElementById('issue-input').value.trim().toUpperCase();
+  var key = document.getElementById('issue-input').value.trim().toUpperCase();
   if (!key) return;
-  const area = document.getElementById('result-area');
+  var area = document.getElementById('result-area');
   area.innerHTML = '<div class="loading"><div class="spinner"></div>查詢中...</div>';
   try {
-    const res = await fetch(JIRA_API, {
+    var res = await fetch(JIRA_API, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ issueKey: key })
     });
     if (!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
-    currentIssueData = { key, data };
+    var data = await res.json();
+    currentIssueData = { key: key, data: data };
     renderResult(key, data);
     addHistory(key);
   } catch (err) {
@@ -181,6 +229,21 @@ function renderResult(key, data) {
   var statusCls = statusMap[status] || 'badge-todo';
   var prioCls = prioMap[priority] || 'badge-medium';
   var desc = cleanDescription(rawDesc);
+  var isBug = currentType === 'bug';
+  var typeBadge = isBug
+    ? '<span class="badge badge-type-bug">Bug / Issue</span>'
+    : '<span class="badge badge-type-req">Requirement</span>';
+
+  var aiButtons = isBug
+    ? '<button class="footer-btn primary-bug" onclick="runAI(\'bug_reply\')">' +
+        '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>' +
+        '產出回覆 User 草稿</button>'
+    : '<button class="footer-btn primary-req" onclick="runAI(\'req_check\')">' +
+        '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>' +
+        '需求完整性檢查</button>' +
+      '<button class="footer-btn primary-req" onclick="runAI(\'req_impl\')">' +
+        '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>' +
+        '建議實作方向</button>';
 
   document.getElementById('result-area').innerHTML =
     '<div class="result-card">' +
@@ -188,6 +251,7 @@ function renderResult(key, data) {
         '<div>' +
           '<div class="result-key">' + key + '</div>' +
           '<div class="badges">' +
+            typeBadge +
             '<span class="badge ' + statusCls + '">' + status + '</span>' +
             '<span class="badge ' + prioCls + '">' + priority + '</span>' +
           '</div>' +
@@ -202,18 +266,8 @@ function renderResult(key, data) {
         '<div class="field-row"><div class="field-label">Description</div><div class="field-value">' + desc + '</div></div>' +
       '</div>' +
       '<div class="result-footer">' +
+        '<div class="footer-actions">' + aiButtons + '</div>' +
         '<div class="footer-actions">' +
-          '<button class="footer-btn primary" onclick="runAI(\'checklist\')">' +
-            '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>' +
-            '產出 Checklist</button>' +
-          '<button class="footer-btn primary" onclick="runAI(\'summary\')">' +
-            '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' +
-            '主管摘要</button>' +
-        '</div>' +
-        '<div class="footer-actions">' +
-          '<button class="footer-btn" onclick="doCopy()">' +
-            '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>' +
-            '複製</button>' +
           '<button class="footer-btn" onclick="window.open(\'https://ec-service.asus.com/jira/browse/' + key + '\',\'_blank\')">' +
             '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>' +
             '在 Jira 開啟</button>' +
@@ -233,14 +287,23 @@ async function runAI(mode) {
     .replace(/\[([^\]\|]+)(?:\|[^\]]+)?\]/g, '$1')
     .replace(/\*([^*\n]+)\*/g, '$1');
 
-  var labels = { checklist: '需求 Checklist 分析', summary: '主管摘要' };
+  var labels = {
+    bug_reply: '回覆 User 草稿',
+    req_check: '需求完整性檢查',
+    req_impl: '建議實作方向'
+  };
+  var isBugMode = mode === 'bug_reply';
+  var sectionCls = isBugMode ? 'ai-section bug-style' : 'ai-section';
   var aiArea = document.getElementById('ai-area');
+  lastAiText = '';
 
   aiArea.innerHTML =
-    '<div class="ai-section">' +
+    '<div class="' + sectionCls + '">' +
       '<div class="ai-section-header">' +
-        '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>' +
-        'AI 分析：' + labels[mode] +
+        '<div class="ai-section-title">' +
+          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>' +
+          'AI 分析：' + labels[mode] +
+        '</div>' +
       '</div>' +
       '<div class="ai-loading"><div class="spinner"></div>AI 分析中，請稍候...</div>' +
     '</div>';
@@ -254,41 +317,40 @@ async function runAI(mode) {
     if (!res.ok) throw new Error('HTTP ' + res.status);
     var result = await res.json();
     if (result.error) throw new Error(result.error);
+    lastAiText = result.text;
     var formatted = result.text
       .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
       .replace(/\n/g, '<br>');
+
     aiArea.innerHTML =
-      '<div class="ai-section">' +
+      '<div class="' + sectionCls + '">' +
         '<div class="ai-section-header">' +
-          '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>' +
-          'AI 分析：' + labels[mode] +
+          '<div class="ai-section-title">' +
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>' +
+            'AI 分析：' + labels[mode] +
+          '</div>' +
+          '<button class="copy-ai-btn" onclick="copyAiResult(this)">' +
+            '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>' +
+            '複製結果' +
+          '</button>' +
         '</div>' +
         '<div class="ai-body">' + formatted + '</div>' +
       '</div>';
   } catch (err) {
     aiArea.innerHTML =
-      '<div class="ai-section">' +
-        '<div class="ai-section-header">AI 分析</div>' +
+      '<div class="' + sectionCls + '">' +
+        '<div class="ai-section-header"><div class="ai-section-title">AI 分析</div></div>' +
         '<div class="ai-body" style="color:#BF2600">分析失敗：' + err.message + '</div>' +
       '</div>';
   }
 }
 
-function doCopy() {
-  if (!currentIssueData) return;
-  var data = currentIssueData.data;
-  var summary = data.summary || (data.fields && data.fields.summary) || '';
-  var status = data.status || (data.fields && data.fields.status && data.fields.status.name) || '';
-  var text = currentIssueData.key + '\nSummary: ' + summary + '\nStatus: ' + status;
-  navigator.clipboard.writeText(text).then(function() {
-    var btns = document.querySelectorAll('.footer-btn');
-    btns.forEach(function(btn) {
-      if (btn.textContent.trim().includes('複製')) {
-        var original = btn.innerHTML;
-        btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> 已複製';
-        setTimeout(function() { btn.innerHTML = original; }, 1500);
-      }
-    });
+function copyAiResult(btn) {
+  if (!lastAiText) return;
+  navigator.clipboard.writeText(lastAiText).then(function() {
+    var original = btn.innerHTML;
+    btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> 已複製！';
+    setTimeout(function() { btn.innerHTML = original; }, 2000);
   });
 }
 
