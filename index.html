@@ -82,6 +82,10 @@
   .footer-btn.primary-bug:hover { background: #BF2600; border-color: #BF2600; color: white; box-shadow: none; }
   .footer-btn.primary-req { background: var(--blue); color: white; border-color: var(--blue); font-weight: 500; }
   .footer-btn.primary-req:hover { background: var(--blue-dark); border-color: var(--blue-dark); color: white; box-shadow: none; }
+  .footer-btn:disabled { opacity: 0.38; cursor: not-allowed; pointer-events: none; }
+  .created-issue-bar { padding: 0.75rem 1.25rem; background: #E3FCEF; border-top: 1px solid #ABF5D1; display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--green); animation: fadeIn 0.25s ease; }
+  .created-issue-bar a { color: var(--green); font-weight: 600; font-family: 'DM Mono', monospace; text-decoration: underline; text-underline-offset: 2px; }
+  .created-issue-bar svg { flex-shrink: 0; }
 
   /* AI section */
   .ai-section { margin-top: 1rem; border: 1px solid #C3D9FF; border-radius: var(--radius-lg); overflow: hidden; animation: fadeIn 0.3s ease; }
@@ -170,6 +174,7 @@ var queryHistory = [];
 var currentIssueData = null;
 var currentType = 'bug';
 var lastAiText = '';
+var baReady = false; // BA 文件產出後才為 true，才能新增 DV2IN1 單
 var lastKey = {
   bug: localStorage.getItem('lastKey_bug') || '',
   req: localStorage.getItem('lastKey_req') || ''
@@ -198,6 +203,7 @@ function selectType(type) {
   if (aiArea) aiArea.innerHTML = '';
   document.getElementById('result-area').innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg><p>選擇工單類型並輸入單號開始查詢</p></div>';
   currentIssueData = null;
+  baReady = false;
 }
 
 async function queryIssue() {
@@ -205,11 +211,13 @@ async function queryIssue() {
   if (!key) return;
   var area = document.getElementById('result-area');
   area.innerHTML = '<div class="loading"><div class="spinner"></div>查詢中...</div>';
+  baReady = false;
+  lastAiText = '';
   try {
     var res = await fetch(JIRA_API, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ issueKey: key })
+      body: JSON.stringify({ issueKey: key, baDescription: lastAiText })
     });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     var data = await res.json();
@@ -264,7 +272,7 @@ function renderResult(key, data) {
         '需求完整性檢查</button>' +
       '<button class="footer-btn primary-req" onclick="runAI(\'req_impl\')">' +
         '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>' +
-        '建議實作方向</button>';
+        '產出 BA 文件</button>';
 
   document.getElementById('result-area').innerHTML =
     '<div class="result-card">' +
@@ -289,11 +297,13 @@ function renderResult(key, data) {
       '<div class="result-footer">' +
         '<div class="footer-actions">' + aiButtons + '</div>' +
         '<div class="footer-actions">' +
+          (currentType === 'req' ? '<button class="footer-btn" id="create-btn" onclick="createDV2IN1()" disabled title="請先產出 BA 文件" style="color:#0052CC;border-color:#0052CC"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>新增 DV2IN1 單</button>' : '') +
           '<button class="footer-btn" onclick="window.open(\'https://ec-service.asus.com/jira/browse/' + key + '\',\'_blank\')">' +
             '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>' +
             '在 Jira 開啟</button>' +
         '</div>' +
       '</div>' +
+      '<div id="created-bar"></div>' +
     '</div>' +
     '<div id="ai-area"></div>';
 }
@@ -311,7 +321,7 @@ async function runAI(mode) {
   var labels = {
     bug_reply: '回覆 User 草稿',
     req_check: '需求完整性檢查',
-    req_impl: '建議實作方向'
+    req_impl: '產出 BA 文件'
   };
   var isBugMode = mode === 'bug_reply';
   var sectionCls = isBugMode ? 'ai-section bug-style' : 'ai-section';
@@ -333,7 +343,14 @@ async function runAI(mode) {
     var res = await fetch(ANALYZE_API, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ mode: mode, issueKey: key, summary: summary, description: description })
+      body: JSON.stringify({
+        mode: mode,
+        issueKey: key,
+        summary: summary,
+        description: description,
+        attachment: JSON.stringify((currentIssueData.data.fields && currentIssueData.data.fields.attachment) || []),
+        comment: JSON.stringify((currentIssueData.data.fields && currentIssueData.data.fields.comment) || {})
+      })
     });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     var result = await res.json();
@@ -342,6 +359,16 @@ async function runAI(mode) {
     var formatted = result.text
       .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
       .replace(/\n/g, '<br>');
+
+    // BA 文件產出成功 → 啟用「新增 DV2IN1 單」按鈕
+    if (mode === 'req_impl') {
+      baReady = true;
+      var createBtn = document.getElementById('create-btn');
+      if (createBtn) {
+        createBtn.disabled = false;
+        createBtn.title = '';
+      }
+    }
 
     aiArea.innerHTML =
       '<div class="' + sectionCls + '">' +
@@ -373,6 +400,65 @@ function copyAiResult(btn) {
     btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> 已複製！';
     setTimeout(function() { btn.innerHTML = original; }, 2000);
   });
+}
+
+async function createDV2IN1() {
+  if (!currentIssueData || !baReady) return;
+  var reqKey = currentIssueData.key;
+  var btn = document.getElementById('create-btn');
+  var origHTML = btn.innerHTML;
+  btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation:spin 0.8s linear infinite"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg>建立中...';
+  btn.disabled = true;
+
+  try {
+    var res = await fetch('https://casper3.app.n8n.cloud/webhook/jira-create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ issueKey: reqKey, baDescription: lastAiText })
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    var result = await res.json();
+
+    // 取得新建單號（n8n 回傳 key 或 issueKey）
+    var newKey = result.key || result.issueKey || result.createdKey || null;
+
+    // 按鈕變成綠色完成狀態（永久，因為單已建立，不可重複建）
+    btn.innerHTML =
+      '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>已建立';
+    btn.style.background = '#006644';
+    btn.style.color = 'white';
+    btn.style.borderColor = '#006644';
+    // 建立後不再允許重複點擊
+    btn.onclick = null;
+
+    // 顯示新建單號 bar（填入卡片內已有的 #created-bar）
+    var bar = document.getElementById('created-bar');
+    if (bar) {
+      bar.className = 'created-issue-bar';
+      if (newKey) {
+        var jiraUrl = 'https://ec-service.asus.com/jira/browse/' + newKey;
+        bar.innerHTML =
+          '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' +
+          'DV2IN1 單已建立：<a href="' + jiraUrl + '" target=\'_blank\'>' + newKey + '</a>';
+      } else {
+        bar.innerHTML =
+          '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' +
+          'DV2IN1 單已建立成功（請至 Jira 確認單號）';
+      }
+    }
+
+  } catch(e) {
+    btn.innerHTML =
+      '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>建立失敗';
+    btn.style.color = '#BF2600';
+    btn.style.borderColor = '#BF2600';
+    setTimeout(function() {
+      btn.innerHTML = origHTML;
+      btn.style.color = '';
+      btn.style.borderColor = '';
+      btn.disabled = false;
+    }, 4000);
+  }
 }
 
 function addHistory(key) {

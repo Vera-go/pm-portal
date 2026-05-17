@@ -1,4 +1,4 @@
-// v3
+// v4
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -7,46 +7,33 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    const { mode, issueKey, summary, description } = req.body;
+    const { mode, issueKey, summary, description, attachment, comment } = req.body;
 
     const prompts = {
-bug_reply:
-  '你是一位資深技術支援工程師，正在協助 PM 回覆內部員工的 Bug 回報。\n\n' +
-  '以下是 Jira 工單內容：\n' +
-  '工單號：' + issueKey + '\n' +
-  'Summary：' + summary + '\n' +
-  'Description：' + description + '\n\n' +
-  '請產出一段可以直接複製貼到 Jira comment 的回覆。\n' +
-  '要求：\n' +
-  '1. 直接說明可能的原因（列出2-3個最可能的原因，簡潔條列）\n' +
-  '2. 建議可以先嘗試的解決步驟\n' +
-  '3. 說明正在調查並會更新進度\n' +
-  '不需要任何問候語、感謝語、客套話，直接進入重點。\n' +
-  '請用繁體中文，語氣簡潔專業。',
+      bug_reply:
+        '你是一位資深技術支援工程師，協助 PM 回覆內部員工的 Bug 回報。\n' +
+        '工單號：' + issueKey + '\nSummary：' + summary + '\nDescription：' + description + '\n\n' +
+        '直接說明可能的原因（2-3個，簡潔條列），建議解決步驟，說明正在調查。不需要問候語或感謝語。繁體中文，語氣簡潔專業。',
 
       req_check:
-        '你是一位資深 PM，正在審查需求工單的完整性。\n\n' +
-        '以下是 Jira 需求工單內容：\n' +
-        '工單號：' + issueKey + '\n' +
-        'Summary：' + summary + '\n' +
-        'Description：' + description + '\n\n' +
-        '請針對這個需求進行完整性檢查，產出：\n' +
-        '1. **缺少的資訊**：列出需求描述中不足或需要補充的項目\n' +
-        '2. **需要釐清的問題**：列出需要與 stakeholder 確認的問題\n' +
-        '3. **潛在風險**：列出可能影響開發或上線的風險\n\n' +
-        '請用繁體中文條列，每點簡潔清楚。',
+        '你是一位資深 PM，審查需求工單完整性。\n' +
+        '工單號：' + issueKey + '\nSummary：' + summary + '\nDescription：' + description + '\n\n' +
+        '請產出：\n1. **缺少的資訊**：不足或需補充的項目\n2. **需要釐清的問題**：與 stakeholder 確認的問題\n3. **潛在風險**：影響開發或上線的風險\n繁體中文條列，簡潔清楚。',
 
       req_impl:
-        '你是一位資深技術 PM，擅長將需求轉換為可執行的技術方向。\n\n' +
-        '以下是 Jira 需求工單內容：\n' +
-        '工單號：' + issueKey + '\n' +
-        'Summary：' + summary + '\n' +
-        'Description：' + description + '\n\n' +
-        '請針對這個需求產出建議實作方向，包含：\n' +
-        '1. **建議拆分的子任務**：將需求拆成可執行的開發任務\n' +
-        '2. **技術考量點**：需要特別注意的技術難點或依賴項目\n' +
-        '3. **建議驗收條件**：定義 Done 的標準，方便 QA 測試\n\n' +
-        '請用繁體中文條列，實用且具體。'
+        '你是一位資深專業的專案經理 (PM)，你的工作是根據使用者提供的需求，統整並撰寫商業分析 (BA) 文件。\n' +
+        '請詳細分析以下 Jira Issue 的資料，包括 Summary、Description、Attachment 內容，以及所有 Comment。你的目標是從這些資料中提取關鍵資訊，並將其整理成結構化的 BA 文件。\n\n' +
+        'Requirment資料如下：\n' +
+        'Summary: ' + summary + '\n' +
+        'Description: ' + description + '\n' +
+        'Attachment 內容: ' + (attachment || '無') + ' (請分析附件內容，並將重要資訊納入考量)\n' +
+        'Comment: ' + (comment || '無') + ' (請分析所有評論，並將重要資訊納入考量)\n\n' +
+        '**請分別產出以下兩點BA資訊，不需回覆對話，直接產出BA結果，除[需求原因]及[需求描述]的資訊外，不需提供其他資訊，確保Jira description可呈現正確html格式**\n\n' +
+        '[需求原因]\n' +
+        '**請在此簡述需求原因**\n\n' +
+        '[需求描述]\n' +
+        '**請在此填入需求描述,請以列1.2.3.4.的方式描述**\n\n' +
+        '請以清晰、簡潔、專業的語言撰寫 BA 文件內容。'
     };
 
     if (!prompts[mode]) return res.status(400).json({ error: 'Invalid mode' });
