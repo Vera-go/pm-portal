@@ -282,11 +282,11 @@ function renderResult(key, data) {
           '<div class="badges">' +
             typeBadge +
             '<span class="badge ' + statusCls + '">' + status + '</span>' +
-            '<span class="badge ' + prioCls + '">' + priority + '</span>' +
+            (priority !== '—' ? '<span class="badge ' + prioCls + '">' + priority + '</span>' : '') +
           '</div>' +
         '</div>' +
         '<div class="result-meta">' +
-          '<div class="meta-label">負責人</div>' +
+          '<div class="meta-label">Assignee</div>' +
           '<div class="meta-value">' + assignee + '</div>' +
         '</div>' +
       '</div>' +
