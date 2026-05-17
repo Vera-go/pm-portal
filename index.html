@@ -358,6 +358,7 @@ async function runAI(mode) {
     lastAiText = result.text;
     var formatted = result.text
       .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\[(需求原因|需求描述)\]/g, '<strong style="color:#FF8B00;font-size:15px">[$1]</strong>')
       .replace(/\n/g, '<br>');
 
     // BA 文件產出成功 → 啟用「新增 DV2IN1 單」按鈕
