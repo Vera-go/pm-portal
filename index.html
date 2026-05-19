@@ -179,10 +179,14 @@ async function doLogin() {
     if (r.ok) {
       document.getElementById('login-overlay').style.display = 'none'
     } else {
+      err.textContent = '密碼錯誤，請再試一次'
       err.style.display = 'block'
       document.getElementById('gate-pw').value = ''
       document.getElementById('gate-pw').focus()
     }
+  } catch(e) {
+    err.textContent = '連線失敗，請確認伺服器是否啟動（' + e.message + '）'
+    err.style.display = 'block'
   } finally {
     btn.textContent = '進入'
     btn.disabled = false
