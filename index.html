@@ -107,6 +107,21 @@
   .history-chip { font-size: 12px; font-family: 'DM Mono', monospace; padding: 3px 10px; border-radius: 20px; background: var(--bg); color: var(--text-secondary); border: 1px solid var(--border); cursor: pointer; transition: all 0.15s; }
   .history-chip:hover { background: var(--surface); border-color: var(--border-hover); color: var(--text-primary); }
   .footer-bar { margin-top: 1.5rem; font-size: 12px; color: var(--text-tertiary); text-align: center; }
+
+  /* Daily reminder panel */
+  .reminder-panel { width: 100%; max-width: 720px; margin-top: 1rem; background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border); box-shadow: var(--shadow-md); overflow: hidden; }
+  .reminder-header { padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .reminder-title { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; }
+  .reminder-title span { font-size: 12px; color: var(--text-tertiary); font-weight: 400; }
+  .reminder-body { padding: 1rem 1.5rem; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .reminder-info { font-size: 13px; color: var(--text-secondary); flex: 1; line-height: 1.6; }
+  .send-btn { padding: 9px 20px; background: #006644; color: white; border: none; border-radius: var(--radius-md); font-size: 14px; font-family: 'DM Sans', sans-serif; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.15s; white-space: nowrap; flex-shrink: 0; }
+  .send-btn:hover { background: #005235; }
+  .send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .reminder-result { margin: 0 1.5rem 1rem; padding: 10px 14px; border-radius: var(--radius-md); font-size: 13px; line-height: 1.6; }
+  .reminder-result.success { background: #E3FCEF; color: #006644; border: 1px solid #ABF5D1; }
+  .reminder-result.error { background: #FFEBE6; color: #BF2600; border: 1px solid #FFBDAD; }
+  .reminder-result.info { background: #DEEBFF; color: #0747A6; border: 1px solid #B3D4FF; }
 </style>
 </head>
 <body>
@@ -163,6 +178,28 @@
       <div class="history-items" id="history-items"></div>
     </div>
   </div>
+</div>
+
+<!-- Daily Reminder Panel -->
+<div class="reminder-panel">
+  <div class="reminder-header">
+    <div class="reminder-title">
+      📧 每日工單提醒
+      <span>每天 06:00 自動發信 · 測試模式（僅 Vera_Chang）</span>
+    </div>
+    <button class="send-btn" id="send-btn" onclick="sendReminder()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      立即發送今日提醒
+    </button>
+  </div>
+  <div class="reminder-body">
+    <div class="reminder-info">
+      掃描範圍：DV2IN1 · MCC2 · EC · 未關閉的 Requirement<br>
+      ⚠️ <strong>SA_Due</strong> 前 2 天 &nbsp;·&nbsp; <strong>UAT_Due</strong> 前 2 天 &nbsp;·&nbsp; <strong>上線日</strong>前 2 天<br>
+      🔴 <strong>已逾期上線日</strong>（主單或 sub-task 未關閉）
+    </div>
+  </div>
+  <div id="reminder-result" style="display:none" class="reminder-result"></div>
 </div>
 
 <div class="footer-bar">串接至 n8n · ec-service.asus.com/jira</div>
@@ -460,6 +497,43 @@ async function createDV2IN1() {
       btn.disabled = false;
     }, 4000);
   }
+}
+
+async function sendReminder() {
+  var btn = document.getElementById('send-btn');
+  var resultDiv = document.getElementById('reminder-result');
+  btn.disabled = true;
+  btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation:spin 0.8s linear infinite"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg> 掃描中...';
+  resultDiv.style.display = 'none';
+
+  try {
+    var res = await fetch('/api/daily-reminder', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+    var data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'HTTP ' + res.status);
+
+    if (data.emailsSent && data.emailsSent.length > 0) {
+      // 合併相同收件人（TEST_MODE 時全部寄到同一信箱）
+      var mergedMap = {};
+      data.emailsSent.forEach(function(e) {
+        if (!mergedMap[e.to]) mergedMap[e.to] = 0;
+        mergedMap[e.to] += e.count;
+      });
+      var emailList = Object.entries(mergedMap).map(function(kv) { return kv[0] + '（' + kv[1] + ' 項）'; }).join('、');
+      resultDiv.className = 'reminder-result success';
+      resultDiv.innerHTML = '✅ 掃描完成！共掃 <strong>' + data.scanned + '</strong> 張工單，發現 <strong>' + data.totalAlerts + '</strong> 項提醒，已寄出至：' + emailList;
+    } else {
+      resultDiv.className = 'reminder-result info';
+      resultDiv.innerHTML = 'ℹ️ 掃描完成！共掃 <strong>' + data.scanned + '</strong> 張工單，今日無需提醒的項目，未發送 email。';
+    }
+    resultDiv.style.display = 'block';
+  } catch(err) {
+    resultDiv.className = 'reminder-result error';
+    resultDiv.innerHTML = '❌ 發送失敗：' + err.message;
+    resultDiv.style.display = 'block';
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> 立即發送今日提醒';
 }
 
 function addHistory(key) {
