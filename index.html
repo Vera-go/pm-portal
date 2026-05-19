@@ -126,6 +126,58 @@
 </head>
 <body>
 
+<!-- ── 登入擋板 ── -->
+<div id="login-overlay" style="position:fixed;inset:0;z-index:9999;background:rgba(247,248,250,0.97);display:flex;align-items:center;justify-content:center">
+  <div style="background:#fff;padding:40px 36px;border:1px solid rgba(0,0,0,0.1);border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,0.10);width:100%;max-width:340px;text-align:center">
+    <div style="width:44px;height:44px;background:#0052CC;border-radius:10px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M11.571 11.286 6.857 6H2.571L8.286 12l-5.715 6h4.286l4.714-5.286.857-.857-.857-.571zm1.143 0L17.428 18h4.286L16 12l5.714-6h-4.286l-4.714 5.286-.857.857.857.571-.186-.143z"/></svg>
+    </div>
+    <p style="margin:0 0 4px;font-size:17px;font-weight:600;color:#172B4D;font-family:'DM Sans',sans-serif">PM Portal</p>
+    <p style="margin:0 0 24px;font-size:13px;color:#97A0AF;font-family:'DM Sans',sans-serif">請輸入通關密碼</p>
+    <input id="gate-pw" type="password" placeholder="密碼" autocomplete="current-password"
+      style="width:100%;padding:10px 14px;border:1px solid rgba(0,0,0,0.15);border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;color:#172B4D;outline:none;box-sizing:border-box"
+      onkeydown="if(event.key==='Enter')doLogin()">
+    <button onclick="doLogin()" id="gate-btn"
+      style="margin-top:10px;width:100%;padding:10px;background:#0052CC;color:#fff;border:none;border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer">
+      進入
+    </button>
+    <p id="gate-err" style="margin:8px 0 0;font-size:12px;color:#DE350B;display:none;font-family:'DM Sans',sans-serif">密碼錯誤，請再試一次</p>
+  </div>
+</div>
+
+<script>
+// 頁面載入時驗證 session
+fetch('/api/auth').then(r => {
+  if (r.ok) document.getElementById('login-overlay').style.display = 'none'
+})
+
+async function doLogin() {
+  const pw = document.getElementById('gate-pw').value
+  const err = document.getElementById('gate-err')
+  const btn = document.getElementById('gate-btn')
+  err.style.display = 'none'
+  btn.textContent = '驗證中…'
+  btn.disabled = true
+  try {
+    const r = await fetch('/api/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pw })
+    })
+    if (r.ok) {
+      document.getElementById('login-overlay').style.display = 'none'
+    } else {
+      err.style.display = 'block'
+      document.getElementById('gate-pw').value = ''
+      document.getElementById('gate-pw').focus()
+    }
+  } finally {
+    btn.textContent = '進入'
+    btn.disabled = false
+  }
+}
+</script>
+
 <div class="portal">
   <div class="header">
     <div class="header-logo">
