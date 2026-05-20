@@ -9,6 +9,21 @@ export default async function handler(req, res) {
   try {
     const { mode, issueKey, summary, description, attachment, comment } = req.body;
 
+    // 將 comment array 整理成可讀文字
+    const commentArr = (() => {
+      try {
+        const c = typeof comment === 'string' ? JSON.parse(comment) : comment;
+        const arr = c.comments || c || [];
+        if (!Array.isArray(arr) || arr.length === 0) return '（無 comment）';
+        return arr.map((cm, i) => {
+          const author = (cm.author && cm.author.displayName) || cm.author || '未知';
+          const body = cm.body || '';
+          const date = cm.created ? cm.created.slice(0, 10) : '';
+          return (i + 1) + '. [' + date + '] ' + author + '：' + body;
+        }).join('\n');
+      } catch(e) { return String(comment || '（無 comment）'); }
+    })();
+
     const prompts = {
       bug_reply:
         '你是一位資深技術支援工程師，協助 PM 回覆內部員工的 Bug 回報。\n' +
@@ -27,13 +42,23 @@ export default async function handler(req, res) {
         'Summary: ' + summary + '\n' +
         'Description: ' + description + '\n' +
         'Attachment 內容: ' + (attachment || '無') + ' (請分析附件內容，並將重要資訊納入考量)\n' +
-        'Comment: ' + (comment || '無') + ' (請分析所有評論，並將重要資訊納入考量)\n\n' +
+        'Comment: ' + commentArr + '\n\n' +
         '**請分別產出以下兩點BA資訊，不需回覆對話，直接產出BA結果，除[需求原因]及[需求描述]的資訊外，不需提供其他資訊，確保Jira description可呈現正確html格式**\n\n' +
         '[需求原因]\n' +
         '**請在此簡述需求原因**\n\n' +
         '[需求描述]\n' +
         '**請在此填入需求描述,請以列1.2.3.4.的方式描述**\n\n' +
         '請以清晰、簡潔、專業的語言撰寫 BA 文件內容。'
+      progress:
+        '你是一位資深 PM，請根據以下 Jira 工單資料，用一段口語化的繁體中文摘要目前的進度狀況，' +
+        '重點包括：目前狀態、球卡在誰身上（等誰回覆或誰負責下一步）、最新進展、以及一句可以直接口頭回覆詢問者的結論。' +
+        '不要條列，直接說一段話，語氣自然像在跟同事口頭更新進度。\n\n' +
+        '工單號：' + issueKey + '\n' +
+        'Summary：' + summary + '\n' +
+        'Status：' + (req.body.status || '') + '\n' +
+        'Assignee：' + (req.body.assignee || '未指派') + '\n' +
+        'Description：' + description + '\n\n' +
+        'Comment 紀錄（依時間排序）：\n' + commentArr
     };
 
     if (!prompts[mode]) return res.status(400).json({ error: 'Invalid mode' });
