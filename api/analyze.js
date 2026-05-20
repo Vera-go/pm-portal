@@ -50,16 +50,19 @@ export default async function handler(req, res) {
         '**請在此填入需求描述,請以列1.2.3.4.的方式描述**\n\n' +
         '請以清晰、簡潔、專業的語言撰寫 BA 文件內容。',
 
-      progress:
-        '你是一位資深 PM，請根據以下 Jira 工單資料，用一段口語化的繁體中文摘要目前的進度狀況，' +
+      progress: (() => {
+        const today = new Date().toLocaleDateString('zh-TW', { timeZone: 'Asia/Taipei', year: 'numeric', month: '2-digit', day: '2-digit' });
+        return '你是一位資深 PM，請根據以下 Jira 工單資料，用一段口語化的繁體中文摘要目前的進度狀況，' +
         '重點包括：目前狀態、球卡在誰身上（等誰回覆或誰負責下一步）、最新進展、以及一句可以直接口頭回覆詢問者的結論。' +
-        '不要條列，直接說一段話，語氣自然像在跟同事口頭更新進度。\n\n' +
+        '不要條列，直接說一段話，語氣自然像在跟同事口頭更新進度。\n' +
+        '今天日期是 ' + today + '，請根據此日期正確判斷 comment 的相對時間（今天、昨天、X天前、上週等），不可猜測。\n\n' +
         '工單號：' + issueKey + '\n' +
         'Summary：' + summary + '\n' +
         'Status：' + (req.body.status || '') + '\n' +
         'Assignee：' + (req.body.assignee || '未指派') + '\n' +
         'Description：' + description + '\n\n' +
-        'Comment 紀錄（依時間排序）：\n' + commentArr
+        'Comment 紀錄（依時間排序，格式為 [YYYY-MM-DD] 作者：內容）：\n' + commentArr;
+      })()
     };
 
     if (!prompts[mode]) return res.status(400).json({ error: 'Invalid mode' });
