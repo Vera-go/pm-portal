@@ -43,12 +43,16 @@ export default async function handler(req, res) {
         'Description: ' + description + '\n' +
         'Attachment 內容: ' + (attachment || '無') + ' (請分析附件內容，並將重要資訊納入考量)\n' +
         'Comment: ' + commentArr + '\n\n' +
-        '**請分別產出以下兩點BA資訊，不需回覆對話，直接產出BA結果，除[需求原因]及[需求描述]的資訊外，不需提供其他資訊，確保Jira description可呈現正確html格式**\n\n' +
+        '**請分別產出以下兩點BA資訊，不需回覆對話，直接產出BA結果。**\n' +
+        '**格式規定：純文字輸出，不可使用任何 HTML 標籤或 Jira wiki markup（禁止 {color}、{panel} 等標籤）。**\n' +
+        '**章節標題固定使用 [需求原因] 及 [需求描述]，不可更改。**\n\n' +
         '[需求原因]\n' +
-        '**請在此簡述需求原因**\n\n' +
+        '（在此簡述需求原因，1-3句話）\n\n' +
         '[需求描述]\n' +
-        '**請在此填入需求描述,請以列1.2.3.4.的方式描述**\n\n' +
-        '請以清晰、簡潔、專業的語言撰寫 BA 文件內容。',
+        '1. （需求描述第一點）\n' +
+        '2. （需求描述第二點）\n' +
+        '3. （依此類推）\n\n' +
+        '請以清晰、簡潔、專業的語言撰寫。',
 
       progress: (() => {
         const today = new Date().toLocaleDateString('zh-TW', { timeZone: 'Asia/Taipei', year: 'numeric', month: '2-digit', day: '2-digit' });

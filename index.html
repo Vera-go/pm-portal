@@ -29,7 +29,6 @@
   .content { padding: 1.5rem; }
   .search-label { font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; display: block; }
 
-  /* Type selector */
   .type-selector { display: flex; gap: 8px; margin-bottom: 1rem; }
   .type-btn { flex: 1; padding: 8px 12px; border-radius: var(--radius-md); border: 1.5px solid var(--border); background: var(--surface); color: var(--text-secondary); font-size: 13px; font-weight: 500; font-family: 'DM Sans', sans-serif; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.15s; }
   .type-btn:hover { border-color: var(--border-hover); color: var(--text-primary); }
@@ -87,7 +86,6 @@
   .created-issue-bar a { color: var(--green); font-weight: 600; font-family: 'DM Mono', monospace; text-decoration: underline; text-underline-offset: 2px; }
   .created-issue-bar svg { flex-shrink: 0; }
 
-  /* AI section */
   .ai-section { margin-top: 1rem; border: 1px solid #C3D9FF; border-radius: var(--radius-lg); overflow: hidden; animation: fadeIn 0.3s ease; }
   .ai-section.bug-style { border-color: #FFBDAD; }
   .ai-section-header { padding: 0.75rem 1.25rem; background: #EAF0FF; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
@@ -107,10 +105,150 @@
   .history-chip { font-size: 12px; font-family: 'DM Mono', monospace; padding: 3px 10px; border-radius: 20px; background: var(--bg); color: var(--text-secondary); border: 1px solid var(--border); cursor: pointer; transition: all 0.15s; }
   .history-chip:hover { background: var(--surface); border-color: var(--border-hover); color: var(--text-primary); }
   .footer-bar { margin-top: 1.5rem; font-size: 12px; color: var(--text-tertiary); text-align: center; }
+
+  /* ── User area in header ── */
+  .user-area { margin-left: auto; display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  .user-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border); background: var(--bg); }
+  .user-name { font-size: 13px; color: var(--text-secondary); }
+  .icon-btn { width: 32px; height: 32px; border-radius: var(--radius-md); border: 1px solid var(--border); background: var(--surface); color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; padding: 0; }
+  .icon-btn:hover { border-color: var(--border-hover); color: var(--text-primary); box-shadow: var(--shadow-sm); }
+
+  /* ── Login overlay ── */
+  #login-overlay { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 1rem; }
+  .login-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 40px 36px; width: 100%; max-width: 400px; box-shadow: 0 8px 32px rgba(0,0,0,0.10); text-align: center; }
+  .login-logo { width: 52px; height: 52px; background: var(--blue); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
+  .login-logo svg { width: 28px; height: 28px; fill: white; }
+  .login-title { font-size: 20px; font-weight: 600; margin-bottom: 6px; }
+  .login-sub { font-size: 14px; color: var(--text-secondary); margin-bottom: 28px; line-height: 1.5; }
+  .login-input { width: 100%; font-size: 14px; font-family: 'DM Sans', sans-serif; padding: 10px 14px; border: 1px solid var(--border); border-radius: var(--radius-md); outline: none; margin-bottom: 12px; transition: border-color 0.15s; color: var(--text-primary); }
+  .login-input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(0,82,204,0.12); }
+  .login-btn { width: 100%; padding: 11px; background: var(--blue); color: white; border: none; border-radius: var(--radius-md); font-size: 15px; font-family: 'DM Sans', sans-serif; font-weight: 500; cursor: pointer; transition: background 0.15s; }
+  .login-btn:hover { background: var(--blue-dark); }
+  .login-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .login-error { margin-top: 10px; font-size: 13px; color: #BF2600; background: #FFEBE6; border: 1px solid #FFBDAD; border-radius: var(--radius-md); padding: 8px 12px; display: none; }
+  .login-sent { padding: 8px 0; }
+  .login-sent-icon { font-size: 36px; margin-bottom: 12px; }
+  .login-sent-title { font-size: 16px; font-weight: 600; margin-bottom: 8px; color: var(--text-primary); }
+  .login-sent-sub { font-size: 14px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 20px; }
+  .login-resend-btn { font-size: 13px; color: var(--blue); background: none; border: none; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+
+  /* ── Settings panel ── */
+  #settings-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 50; display: none; }
+  #settings-panel { position: fixed; top: 0; right: 0; bottom: 0; width: 340px; background: var(--surface); border-left: 1px solid var(--border); z-index: 51; overflow-y: auto; display: none; box-shadow: -4px 0 24px rgba(0,0,0,0.10); transform: translateX(100%); transition: transform 0.25s ease; }
+  #settings-panel.open { transform: translateX(0); }
+  .sp-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: var(--surface); z-index: 1; }
+  .sp-title { font-size: 15px; font-weight: 600; }
+  .sp-close { width: 28px; height: 28px; border-radius: 6px; border: none; background: none; cursor: pointer; color: var(--text-tertiary); font-size: 18px; display: flex; align-items: center; justify-content: center; line-height: 1; }
+  .sp-close:hover { background: var(--bg); color: var(--text-primary); }
+  .sp-body { padding: 1.25rem 1.5rem; }
+  .sp-section { margin-bottom: 1.5rem; }
+  .sp-label { font-size: 11px; font-weight: 500; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; display: block; }
+  .sp-input { width: 100%; font-size: 14px; font-family: 'DM Sans', sans-serif; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius-md); outline: none; color: var(--text-primary); background: var(--surface); transition: border-color 0.15s; }
+  .sp-input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(0,82,204,0.12); }
+  .sp-hint { font-size: 12px; color: var(--text-tertiary); margin-top: 5px; line-height: 1.4; }
+  .avatar-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .avatar-option { border: 2.5px solid transparent; border-radius: 50%; cursor: pointer; overflow: hidden; transition: border-color 0.15s; width: 56px; height: 56px; }
+  .avatar-option img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .avatar-option:hover { border-color: rgba(0,82,204,0.3); }
+  .avatar-option.selected { border-color: var(--blue); }
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; }
+  .toggle-row span { font-size: 14px; color: var(--text-primary); }
+  .toggle { position: relative; width: 40px; height: 22px; flex-shrink: 0; }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .toggle-track { position: absolute; inset: 0; background: var(--border); border-radius: 11px; cursor: pointer; transition: background 0.2s; }
+  .toggle input:checked + .toggle-track { background: var(--blue); }
+  .toggle-track::after { content: ''; position: absolute; width: 16px; height: 16px; background: white; border-radius: 50%; top: 3px; left: 3px; transition: left 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+  .toggle input:checked + .toggle-track::after { left: 21px; }
+  .sp-divider { border: none; border-top: 1px solid var(--border); margin: 1.25rem 0; }
+  .sp-save-btn { width: 100%; padding: 10px; background: var(--blue); color: white; border: none; border-radius: var(--radius-md); font-size: 14px; font-family: 'DM Sans', sans-serif; font-weight: 500; cursor: pointer; margin-bottom: 10px; transition: background 0.15s; }
+  .sp-save-btn:hover { background: var(--blue-dark); }
+  .sp-logout-btn { width: 100%; padding: 9px; background: none; color: #BF2600; border: 1px solid #FFBDAD; border-radius: var(--radius-md); font-size: 14px; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: all 0.15s; }
+  .sp-logout-btn:hover { background: #FFEBE6; }
+  .sp-toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #172B4D; color: white; font-size: 13px; padding: 9px 20px; border-radius: 20px; z-index: 200; opacity: 0; transition: opacity 0.2s; pointer-events: none; }
+  .sp-toast.show { opacity: 1; }
+  .sp-user-email { font-size: 12px; color: var(--text-tertiary); margin-bottom: 1.25rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--border); }
 </style>
 </head>
 <body>
 
+<!-- ── Login overlay ── -->
+<div id="login-overlay">
+  <div class="login-card">
+    <div class="login-logo">
+      <svg viewBox="0 0 24 24"><path d="M11.571 11.286 6.857 6H2.571L8.286 12l-5.715 6h4.286l4.714-5.286.857-.857-.857-.571zm1.143 0L17.428 18h4.286L16 12l5.714-6h-4.286l-4.714 5.286-.857.857.857.571-.186-.143z"/></svg>
+    </div>
+    <div class="login-title">PM Portal</div>
+    <div class="login-sub">請使用 ASUS 信箱登入<br>系統將寄送一次性登入連結至您的信箱</div>
+
+    <div id="login-form-area">
+      <input class="login-input" type="email" id="login-email" placeholder="your.name@asus.com"
+        onkeydown="if(event.key==='Enter')sendMagicLink()" autocomplete="email" />
+      <button class="login-btn" id="login-btn" onclick="sendMagicLink()">寄送登入連結</button>
+      <div class="login-error" id="login-error"></div>
+    </div>
+
+    <div id="login-sent-area" style="display:none">
+      <div class="login-sent">
+        <div class="login-sent-icon">✉️</div>
+        <div class="login-sent-title">登入連結已寄出！</div>
+        <div class="login-sent-sub">請至信箱點擊連結完成登入<br>連結 15 分鐘內有效</div>
+        <button class="login-resend-btn" onclick="showLoginForm()">重新寄送</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Settings overlay + panel ── -->
+<div id="settings-overlay" onclick="closeSettings()"></div>
+<div id="settings-panel">
+  <div class="sp-header">
+    <span class="sp-title">個人設定</span>
+    <button class="sp-close" onclick="closeSettings()">✕</button>
+  </div>
+  <div class="sp-body">
+    <div class="sp-user-email" id="sp-email"></div>
+
+    <div class="sp-section">
+      <span class="sp-label">選擇頭像</span>
+      <div class="avatar-grid" id="avatar-grid">
+        <div style="font-size:12px;color:var(--text-tertiary)">載入中…</div>
+      </div>
+    </div>
+
+    <div class="sp-section">
+      <span class="sp-label">暱稱</span>
+      <input class="sp-input" type="text" id="pref-nickname" placeholder="輸入顯示名稱" maxlength="20" />
+    </div>
+
+    <div class="sp-section">
+      <span class="sp-label">DV2IN1 範本單號</span>
+      <input class="sp-input" type="text" id="pref-template" placeholder="REQ2IN1-XXXXX"
+        style="font-family:'DM Mono',monospace" autocomplete="off" spellcheck="false" />
+      <div class="sp-hint">建立 DV2IN1 工單前需先設定此範本主單號，將傳遞給 n8n</div>
+    </div>
+
+    <div class="sp-section">
+      <span class="sp-label">每日提醒信</span>
+      <div class="toggle-row">
+        <span>訂閱每日 Jira 工單提醒</span>
+        <label class="toggle">
+          <input type="checkbox" id="pref-reminder" checked />
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+    </div>
+
+    <hr class="sp-divider">
+
+    <button class="sp-save-btn" onclick="saveSettings()">儲存設定</button>
+    <button class="sp-logout-btn" onclick="logout()">登出</button>
+  </div>
+</div>
+
+<div id="sp-toast" class="sp-toast"></div>
+
+<!-- ── Main app ── -->
+<div id="app-content" style="display:none;width:100%;display:flex;flex-direction:column;align-items:center">
 <div class="portal">
   <div class="header">
     <div class="header-logo">
@@ -119,6 +257,15 @@
     <div>
       <div class="header-title">PM 工作流程 Portal</div>
       <div class="header-sub">Jira 工單查詢系統</div>
+    </div>
+    <div class="user-area" id="user-area">
+      <img class="user-avatar" id="user-avatar" src="" alt="" />
+      <span class="user-name" id="user-name"></span>
+      <button class="icon-btn" onclick="openSettings()" title="個人設定">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+      </button>
     </div>
   </div>
 
@@ -166,25 +313,252 @@
 </div>
 
 <div class="footer-bar">串接至 n8n · ec-service.asus.com/jira</div>
+</div><!-- #app-content -->
 
 <script>
-var JIRA_API = '/api/jira';
+var JIRA_API    = '/api/jira';
 var ANALYZE_API = '/api/analyze';
-var queryHistory = [];
+var queryHistory    = [];
 var currentIssueData = null;
-var currentType = 'bug';
-var lastAiText = '';
-var baReady = false; // BA 文件產出後才為 true，才能新增 DV2IN1 單
+var currentType      = 'bug';
+var lastAiText       = '';
+var baReady          = false;
+var currentUser      = null;
+var userPrefs        = {};
+var selectedAvatarId = null;
 var lastKey = {
   bug: localStorage.getItem('lastKey_bug') || '',
   req: localStorage.getItem('lastKey_req') || ''
 };
-// 頁面載入時帶入上次的單號
+
+// ── Auth ──────────────────────────────────────────────────
+
 window.addEventListener('DOMContentLoaded', function() {
+  var params = new URLSearchParams(location.search);
+  if (params.get('auth_error')) {
+    showLoginForm();
+    showLoginError('登入連結無效或已過期，請重新申請');
+    history.replaceState(null, '', '/');
+  }
+  checkAuth();
+});
+
+async function checkAuth() {
+  try {
+    var res  = await fetch('/api/auth', { credentials: 'include' });
+    var data = await res.json();
+    if (data.authenticated) {
+      currentUser = { email: data.email };
+      await loadUserPrefs();
+      showApp();
+    } else {
+      showLoginPage();
+    }
+  } catch (e) {
+    showLoginPage();
+  }
+}
+
+async function sendMagicLink() {
+  var email = document.getElementById('login-email').value.trim();
+  if (!email) { showLoginError('請輸入信箱'); return; }
+  if (!email.toLowerCase().endsWith('@asus.com')) {
+    showLoginError('請使用 @asus.com 信箱');
+    return;
+  }
+  var btn = document.getElementById('login-btn');
+  btn.disabled = true;
+  btn.textContent = '寄送中…';
+  hideLoginError();
+  try {
+    var res  = await fetch('/api/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email }),
+      credentials: 'include'
+    });
+    var data = await res.json();
+    if (data.success) {
+      document.getElementById('login-form-area').style.display = 'none';
+      document.getElementById('login-sent-area').style.display = 'block';
+    } else {
+      showLoginError(data.error || '寄送失敗，請稍後再試');
+      btn.disabled = false;
+      btn.textContent = '寄送登入連結';
+    }
+  } catch (e) {
+    showLoginError('網路錯誤，請稍後再試');
+    btn.disabled = false;
+    btn.textContent = '寄送登入連結';
+  }
+}
+
+function showLoginForm() {
+  document.getElementById('login-form-area').style.display = 'block';
+  document.getElementById('login-sent-area').style.display = 'none';
+  var btn = document.getElementById('login-btn');
+  btn.disabled = false;
+  btn.textContent = '寄送登入連結';
+  hideLoginError();
+}
+
+function showLoginError(msg) {
+  var el = document.getElementById('login-error');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function hideLoginError() {
+  document.getElementById('login-error').style.display = 'none';
+}
+
+function showLoginPage() {
+  document.getElementById('login-overlay').style.display = 'flex';
+  document.getElementById('app-content').style.display   = 'none';
+}
+
+function showApp() {
+  document.getElementById('login-overlay').style.display = 'none';
+  document.getElementById('app-content').style.display   = 'flex';
   if (lastKey[currentType]) {
     document.getElementById('issue-input').value = lastKey[currentType];
   }
-});
+}
+
+async function logout() {
+  await fetch('/api/auth', { method: 'DELETE', credentials: 'include' });
+  currentUser = null;
+  userPrefs   = {};
+  closeSettings();
+  showLoginPage();
+  showLoginForm();
+}
+
+// ── User prefs ────────────────────────────────────────────
+
+async function loadUserPrefs() {
+  try {
+    var res  = await fetch('/api/user', { credentials: 'include' });
+    var data = await res.json();
+    userPrefs = data;
+    applyUserPrefs(data);
+  } catch (e) {
+    applyUserPrefs({});
+  }
+}
+
+function applyUserPrefs(prefs) {
+  var displayName = prefs.nickname || (currentUser ? currentUser.email.split('@')[0] : '');
+  document.getElementById('user-name').textContent = 'Hi, ' + displayName + '!';
+  var avatarEl = document.getElementById('user-avatar');
+  if (prefs.avatarId) {
+    avatarEl.src = '/avatars/' + prefs.avatarId;
+  } else {
+    avatarEl.src = makeInitialAvatar(displayName.charAt(0).toUpperCase() || '?');
+  }
+}
+
+function makeInitialAvatar(letter) {
+  var colors = ['#0052CC','#6554C0','#00875A','#FF5630','#FF8B00','#36B37E'];
+  var color  = colors[letter.charCodeAt(0) % colors.length] || '#0052CC';
+  var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">' +
+    '<circle cx="50" cy="50" r="50" fill="' + color + '"/>' +
+    '<text x="50" y="50" text-anchor="middle" dy="0.35em" fill="white" ' +
+    'font-size="44" font-family="DM Sans,sans-serif" font-weight="500">' + letter + '</text></svg>';
+  return 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svg)));
+}
+
+// ── Settings panel ────────────────────────────────────────
+
+async function openSettings() {
+  if (currentUser) {
+    document.getElementById('sp-email').textContent = currentUser.email;
+  }
+  document.getElementById('pref-nickname').value  = userPrefs.nickname  || '';
+  document.getElementById('pref-template').value  = userPrefs.dv2inTemplate || '';
+  document.getElementById('pref-reminder').checked = userPrefs.dailyReminder !== false;
+  selectedAvatarId = userPrefs.avatarId || null;
+
+  await loadAvatarGrid();
+
+  document.getElementById('settings-overlay').style.display = 'block';
+  document.getElementById('settings-panel').style.display   = 'block';
+  requestAnimationFrame(function() {
+    document.getElementById('settings-panel').classList.add('open');
+  });
+}
+
+function closeSettings() {
+  var panel = document.getElementById('settings-panel');
+  panel.classList.remove('open');
+  setTimeout(function() {
+    document.getElementById('settings-overlay').style.display = 'none';
+    panel.style.display = 'none';
+  }, 250);
+}
+
+async function loadAvatarGrid() {
+  var grid = document.getElementById('avatar-grid');
+  try {
+    var res  = await fetch('/avatars/manifest.json');
+    var data = await res.json();
+    grid.innerHTML = data.avatars.map(function(a) {
+      var cls = selectedAvatarId === a.id ? 'avatar-option selected' : 'avatar-option';
+      return '<div class="' + cls + '" id="av-' + a.id + '" onclick="selectAvatar(\'' + a.id + '\')" title="' + a.label + '">' +
+        '<img src="/avatars/' + a.id + '" alt="' + a.label + '" loading="lazy" />' +
+        '</div>';
+    }).join('');
+  } catch (e) {
+    grid.innerHTML = '<div style="font-size:12px;color:var(--text-tertiary)">無法載入頭像</div>';
+  }
+}
+
+function selectAvatar(id) {
+  if (selectedAvatarId) {
+    var prev = document.getElementById('av-' + selectedAvatarId);
+    if (prev) prev.classList.remove('selected');
+  }
+  selectedAvatarId = id;
+  var el = document.getElementById('av-' + id);
+  if (el) el.classList.add('selected');
+}
+
+async function saveSettings() {
+  var prefs = {
+    nickname:      document.getElementById('pref-nickname').value.trim(),
+    avatarId:      selectedAvatarId,
+    dv2inTemplate: document.getElementById('pref-template').value.trim().toUpperCase(),
+    dailyReminder: document.getElementById('pref-reminder').checked
+  };
+  try {
+    var res  = await fetch('/api/user', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(prefs),
+      credentials: 'include'
+    });
+    var data = await res.json();
+    if (data.success || data.email) {
+      userPrefs = Object.assign({}, userPrefs, prefs);
+      applyUserPrefs(userPrefs);
+      closeSettings();
+      showToast('設定已儲存');
+    } else {
+      showToast(data.error || '儲存失敗');
+    }
+  } catch (e) {
+    showToast('網路錯誤，請稍後再試');
+  }
+}
+
+function showToast(msg) {
+  var el = document.getElementById('sp-toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(function() { el.classList.remove('show'); }, 2500);
+}
+
+// ── Jira / AI (unchanged logic, DV2IN1 now checks template) ──
 
 function selectType(type) {
   lastKey[currentType] = document.getElementById('issue-input').value.trim().toUpperCase();
@@ -217,7 +591,8 @@ async function queryIssue() {
     var res = await fetch(JIRA_API, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ issueKey: key, baDescription: lastAiText })
+      body: JSON.stringify({ issueKey: key, baDescription: lastAiText }),
+      credentials: 'include'
     });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     var data = await res.json();
@@ -248,17 +623,17 @@ function cleanDescription(text) {
 }
 
 function renderResult(key, data) {
-  var summary = data.summary || (data.fields && data.fields.summary) || '（無資料）';
-  var rawDesc = data.description || (data.fields && data.fields.description) || '（無描述）';
-  var status = data.status || (data.fields && data.fields.status && data.fields.status.name) || '—';
+  var summary  = data.summary  || (data.fields && data.fields.summary)  || '（無資料）';
+  var rawDesc  = data.description || (data.fields && data.fields.description) || '（無描述）';
+  var status   = data.status   || (data.fields && data.fields.status   && data.fields.status.name)   || '—';
   var assignee = data.assignee || (data.fields && data.fields.assignee && data.fields.assignee.displayName) || '未指派';
   var priority = data.priority || (data.fields && data.fields.priority && data.fields.priority.name) || '—';
   var statusMap = { 'In Progress': 'badge-inprogress', '進行中': 'badge-inprogress', 'To Do': 'badge-todo', '待處理': 'badge-todo', 'Done': 'badge-done', '已完成': 'badge-done' };
-  var prioMap = { 'High': 'badge-high', 'Medium': 'badge-medium', 'Low': 'badge-low' };
-  var statusCls = statusMap[status] || 'badge-todo';
-  var prioCls = prioMap[priority] || 'badge-medium';
-  var desc = cleanDescription(rawDesc);
-  var isBug = currentType === 'bug';
+  var prioMap   = { 'High': 'badge-high', 'Medium': 'badge-medium', 'Low': 'badge-low' };
+  var statusCls = statusMap[status]   || 'badge-todo';
+  var prioCls   = prioMap[priority]   || 'badge-medium';
+  var desc    = cleanDescription(rawDesc);
+  var isBug   = currentType === 'bug';
   var typeBadge = isBug
     ? '<span class="badge badge-type-bug">Bug / Issue</span>'
     : '<span class="badge badge-type-req">Requirement</span>';
@@ -315,24 +690,19 @@ function renderResult(key, data) {
 
 async function runAI(mode) {
   if (!currentIssueData) return;
-  var key = currentIssueData.key;
+  var key  = currentIssueData.key;
   var data = currentIssueData.data;
-  var summary = data.summary || (data.fields && data.fields.summary) || '';
+  var summary     = data.summary     || (data.fields && data.fields.summary) || '';
   var description = String(data.description || (data.fields && data.fields.description) || '')
     .replace(/!image-[^!\s]+!/g, '')
     .replace(/\[([^\]\|]+)(?:\|[^\]]+)?\]/g, '$1')
     .replace(/\*([^*\n]+)\*/g, '$1');
 
-  var labels = {
-    bug_reply: '回覆 User 草稿',
-    req_check: '需求完整性檢查',
-    req_impl: '產出 BA 文件',
-    progress: '進度摘要'
-  };
-  var isBugMode = mode === 'bug_reply' || mode === 'progress';
+  var labels = { bug_reply: '回覆 User 草稿', req_check: '需求完整性檢查', req_impl: '產出 BA 文件', progress: '進度摘要' };
+  var isBugMode  = mode === 'bug_reply' || mode === 'progress';
   var sectionCls = isBugMode ? 'ai-section bug-style' : 'ai-section';
-  var aiArea = document.getElementById('ai-area');
-  lastAiText = '';
+  var aiArea     = document.getElementById('ai-area');
+  lastAiText     = '';
 
   aiArea.innerHTML =
     '<div class="' + sectionCls + '">' +
@@ -350,15 +720,12 @@ async function runAI(mode) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        mode: mode,
-        issueKey: key,
-        summary: summary,
-        description: description,
-        status: data.status || '',
-        assignee: data.assignee || '',
+        mode: mode, issueKey: key, summary: summary, description: description,
+        status: data.status || '', assignee: data.assignee || '',
         attachment: JSON.stringify(data.attachment || []),
         comment: JSON.stringify(data.comment || { comments: [] })
-      })
+      }),
+      credentials: 'include'
     });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     var result = await res.json();
@@ -369,14 +736,10 @@ async function runAI(mode) {
       .replace(/\[(需求原因|需求描述)\]/g, '<strong style="color:#FF8B00;font-size:15px">[$1]</strong>')
       .replace(/\n/g, '<br>');
 
-    // BA 文件產出成功 → 啟用「新增 DV2IN1 單」按鈕
     if (mode === 'req_impl') {
       baReady = true;
       var createBtn = document.getElementById('create-btn');
-      if (createBtn) {
-        createBtn.disabled = false;
-        createBtn.title = '';
-      }
+      if (createBtn) { createBtn.disabled = false; createBtn.title = ''; }
     }
 
     aiArea.innerHTML =
@@ -411,8 +774,29 @@ function copyAiResult(btn) {
   });
 }
 
+// 將 AI 純文字輸出轉為 Jira wiki markup
+function toJiraWiki(text) {
+  return text
+    // [需求原因] / [需求描述] → 橙色粗體標題（移除方括號避免 Jira 解讀成連結）
+    .replace(/\[需求原因\]/g, '{color:#FF8B00}*需求原因*{color}')
+    .replace(/\[需求描述\]/g, '{color:#FF8B00}*需求描述*{color}')
+    // markdown 粗體 **text** → Jira 粗體 *text*
+    .replace(/\*\*(.+?)\*\*/g, '*$1*')
+    // 清除 AI 可能誤生成的殘留 {color} wiki tag
+    .replace(/\{color[^}]*\}/g, '')
+    .replace(/\{color\}/g, '')
+    .trim();
+}
+
 async function createDV2IN1() {
   if (!currentIssueData || !baReady) return;
+
+  if (!userPrefs.dv2inTemplate) {
+    showToast('請先在設定中填入 DV2IN1 範本單號');
+    openSettings();
+    return;
+  }
+
   var reqKey = currentIssueData.key;
   var btn = document.getElementById('create-btn');
   var origHTML = btn.innerHTML;
@@ -423,24 +807,22 @@ async function createDV2IN1() {
     var res = await fetch('https://casper3.app.n8n.cloud/webhook/jira-create', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ issueKey: reqKey, baDescription: lastAiText })
+      body: JSON.stringify({
+        issueKey:    reqKey,
+        baDescription: toJiraWiki(lastAiText),
+        templateKey: userPrefs.dv2inTemplate
+      })
     });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     var result = await res.json();
-
-    // 取得新建單號（n8n 回傳 key 或 issueKey）
     var newKey = result.key || result.issueKey || result.createdKey || null;
 
-    // 按鈕變成綠色完成狀態（永久，因為單已建立，不可重複建）
-    btn.innerHTML =
-      '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>已建立';
-    btn.style.background = '#006644';
-    btn.style.color = 'white';
-    btn.style.borderColor = '#006644';
-    // 建立後不再允許重複點擊
+    btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>已建立';
+    btn.style.background   = '#006644';
+    btn.style.color        = 'white';
+    btn.style.borderColor  = '#006644';
     btn.onclick = null;
 
-    // 顯示新建單號 bar（填入卡片內已有的 #created-bar）
     var bar = document.getElementById('created-bar');
     if (bar) {
       bar.className = 'created-issue-bar';
@@ -455,17 +837,16 @@ async function createDV2IN1() {
           'DV2IN1 單已建立成功（請至 Jira 確認單號）';
       }
     }
-
   } catch(e) {
     btn.innerHTML =
       '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>建立失敗';
-    btn.style.color = '#BF2600';
+    btn.style.color       = '#BF2600';
     btn.style.borderColor = '#BF2600';
     setTimeout(function() {
-      btn.innerHTML = origHTML;
-      btn.style.color = '';
+      btn.innerHTML      = origHTML;
+      btn.style.color    = '';
       btn.style.borderColor = '';
-      btn.disabled = false;
+      btn.disabled       = false;
     }, 4000);
   }
 }
