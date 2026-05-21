@@ -54,6 +54,8 @@
   .result-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; animation: fadeIn 0.2s ease; }
   .result-header { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; background: var(--bg); }
   .result-key { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; color: var(--blue); margin-bottom: 6px; }
+  .result-key a { color: var(--blue); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
+  .result-key a:hover { text-decoration: underline; text-underline-offset: 2px; }
   .badges { display: flex; gap: 6px; flex-wrap: wrap; }
   .badge { font-size: 11px; font-weight: 500; padding: 2px 9px; border-radius: 20px; }
   .badge-inprogress { background: #DEEBFF; color: #0747A6; }
@@ -659,7 +661,7 @@ function renderResult(key, data) {
     '<div class="result-card">' +
       '<div class="result-header">' +
         '<div>' +
-          '<div class="result-key">' + key + '</div>' +
+          '<div class="result-key"><a href="https://ec-service.asus.com/jira/browse/' + key + '" target="_blank">' + key + '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.6"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a></div>' +
           '<div class="badges">' +
             typeBadge +
             '<span class="badge ' + statusCls + '">' + status + '</span>' +
@@ -678,9 +680,6 @@ function renderResult(key, data) {
       '<div class="result-footer">' +
         '<div class="footer-actions">' + aiButtons + '</div>' +
         '<div class="footer-actions">' +
-          '<button class="footer-btn" onclick="window.open(\'https://ec-service.asus.com/jira/browse/' + key + '\',\'_blank\')">' +
-            '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>' +
-            '在 Jira 開啟</button>' +
         '</div>' +
       '</div>' +
     '</div>' +
