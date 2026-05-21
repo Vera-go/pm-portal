@@ -72,13 +72,16 @@ export default async function handler(req, res) {
   }
 }
 
-// ─── Jira 查詢 ───────────────────────────────────────────
+// ─── Jira 查詢（透過 n8n 中轉，避免 IP 白名單問題）────────
+const N8N_REMINDER_QUERY = 'https://casper3.app.n8n.cloud/webhook/jira-reminder-query'
+
 async function fetchIssues() {
-  const params = new URLSearchParams({ jql: JQL, fields: FIELDS, maxResults: '100' })
-  const r = await fetch(`${JIRA_BASE}/rest/api/2/search?${params}`, {
-    headers: { Authorization: `Bearer ${JIRA_PAT}` }
+  const r = await fetch(N8N_REMINDER_QUERY, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ jql: JQL, fields: FIELDS, maxResults: 100 })
   })
-  if (!r.ok) throw new Error(`Jira API ${r.status}`)
+  if (!r.ok) throw new Error(`n8n reminder-query ${r.status}`)
   const data = await r.json()
   return data.issues || []
 }

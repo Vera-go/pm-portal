@@ -875,15 +875,25 @@ async function triggerReminder() {
       var msg = data.emailsSent && data.emailsSent.length > 0
         ? '已寄出 ' + data.emailsSent.length + ' 封提醒信'
         : '今日無需提醒的工單';
+      btn.innerHTML = origHTML;
+      btn.disabled = false;
       showToast(msg);
     } else {
-      showToast('寄送失敗：' + (data.error || '未知錯誤'));
+      var errMsg = data.error || '未知錯誤';
+      btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> ' + errMsg;
+      btn.style.color = '#BF2600';
+      btn.style.borderColor = '#FFBDAD';
+      setTimeout(function() {
+        btn.innerHTML = origHTML;
+        btn.style.color = '';
+        btn.style.borderColor = '';
+        btn.disabled = false;
+      }, 5000);
     }
   } catch (e) {
-    showToast('連線失敗，請稍後再試');
-  } finally {
-    btn.disabled = false;
     btn.innerHTML = origHTML;
+    btn.disabled = false;
+    showToast('連線失敗，請稍後再試');
   }
 }
 
