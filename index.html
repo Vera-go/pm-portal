@@ -85,6 +85,7 @@
   .created-issue-bar { padding: 0.75rem 1.25rem; background: #E3FCEF; border-top: 1px solid #ABF5D1; display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--green); animation: fadeIn 0.25s ease; }
   .created-issue-bar a { color: var(--green); font-weight: 600; font-family: 'DM Mono', monospace; text-decoration: underline; text-underline-offset: 2px; }
   .created-issue-bar svg { flex-shrink: 0; }
+  .ai-section-footer { padding: 0.75rem 1.25rem; border-top: 1px solid #C3D9FF; background: #F4F7FF; display: flex; align-items: center; gap: 8px; }
 
   .ai-section { margin-top: 1rem; border: 1px solid #C3D9FF; border-radius: var(--radius-lg); overflow: hidden; animation: fadeIn 0.3s ease; }
   .ai-section.bug-style { border-color: #FFBDAD; }
@@ -677,13 +678,11 @@ function renderResult(key, data) {
       '<div class="result-footer">' +
         '<div class="footer-actions">' + aiButtons + '</div>' +
         '<div class="footer-actions">' +
-          (currentType === 'req' ? '<button class="footer-btn" id="create-btn" onclick="createDV2IN1()" disabled title="請先產出 BA 文件" style="color:#0052CC;border-color:#0052CC"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>新增 DV2IN1 單</button>' : '') +
           '<button class="footer-btn" onclick="window.open(\'https://ec-service.asus.com/jira/browse/' + key + '\',\'_blank\')">' +
             '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>' +
             '在 Jira 開啟</button>' +
         '</div>' +
       '</div>' +
-      '<div id="created-bar"></div>' +
     '</div>' +
     '<div id="ai-area"></div>';
 }
@@ -738,8 +737,6 @@ async function runAI(mode) {
 
     if (mode === 'req_impl') {
       baReady = true;
-      var createBtn = document.getElementById('create-btn');
-      if (createBtn) { createBtn.disabled = false; createBtn.title = ''; }
     }
 
     aiArea.innerHTML =
@@ -755,6 +752,15 @@ async function runAI(mode) {
           '</button>' +
         '</div>' +
         '<div class="ai-body">' + formatted + '</div>' +
+        (mode === 'req_impl' ?
+          '<div class="ai-section-footer">' +
+            '<button class="footer-btn" id="create-btn" onclick="createDV2IN1()" style="color:#0052CC;border-color:#0052CC">' +
+              '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>' +
+              '新增 DV2IN1 單' +
+            '</button>' +
+          '</div>' +
+          '<div id="created-bar"></div>'
+        : '') +
       '</div>';
   } catch (err) {
     aiArea.innerHTML =
