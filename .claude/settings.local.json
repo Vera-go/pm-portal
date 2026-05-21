@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\vera_chang\\\\Documents\\\\pm-portal\" -Force)",
+      "Bash(Select-Object Name, PSIsContainer)",
+      "Bash(Format-Table)",
+      "Bash(npm install *)",
+      "PowerShell(cd \"C:\\\\Users\\\\vera_chang\\\\Documents\\\\pm-portal\"; npm install --cache \"$env:USERPROFILE\\\\.npm-cache\" 2>&1)",
+      "Bash(npm audit *)"
+    ]
+  }
+}

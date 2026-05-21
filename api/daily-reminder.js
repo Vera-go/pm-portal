@@ -1,5 +1,14 @@
 import nodemailer from 'nodemailer'
 
+async function isSubscribed(email) {
+  try {
+    const { kv } = await import('@vercel/kv')
+    const prefs = await kv.get(`user:${email.toLowerCase()}`)
+    if (prefs && prefs.dailyReminder === false) return false
+  } catch {}
+  return true  // default: subscribed
+}
+
 // ─── 設定 ───────────────────────────────────────────────
 const JIRA_BASE  = 'https://ec-service.asus.com/jira'
 const JIRA_PAT   = process.env.JIRA_PAT
@@ -36,10 +45,11 @@ export default async function handler(req, res) {
     // 2. 分析日期，依 Reporter 分組
     const alertMap = buildAlertMap(issues)
 
-    // 3. 發信
+    // 3. 發信（跳過已取消訂閱的用戶）
     const sent = []
     for (const [email, { name, alerts }] of Object.entries(alertMap)) {
       if (!alerts.length) continue
+      if (!TEST_MODE && !(await isSubscribed(email))) continue
       const to = TEST_MODE ? TEST_EMAIL : email
       await sendEmail(to, name, alerts)
       sent.push({ reporter: email, to, count: alerts.length })

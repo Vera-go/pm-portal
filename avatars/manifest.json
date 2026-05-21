@@ -1,0 +1,12 @@
+{
+  "avatars": [
+    { "id": "cat.svg",    "label": "貓咪" },
+    { "id": "dog.svg",    "label": "狗狗" },
+    { "id": "rabbit.svg", "label": "兔兔" },
+    { "id": "bear.svg",   "label": "熊熊" },
+    { "id": "fox.svg",    "label": "狐狸" },
+    { "id": "frog.svg",   "label": "青蛙" },
+    { "id": "panda.svg",  "label": "貓熊" },
+    { "id": "pig.svg",    "label": "豬豬" }
+  ]
+}
