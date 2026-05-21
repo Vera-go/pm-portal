@@ -777,9 +777,9 @@ function copyAiResult(btn) {
 // 將 AI 純文字輸出轉為 Jira wiki markup
 function toJiraWiki(text) {
   return text
-    // [需求原因] / [需求描述] → 橙色粗體標題（移除方括號避免 Jira 解讀成連結）
-    .replace(/\[需求原因\]/g, '{color:#FF8B00}*需求原因*{color}')
-    .replace(/\[需求描述\]/g, '{color:#FF8B00}*需求描述*{color}')
+    // [需求原因] / [需求描述] → h3 標題（Jira DC 10.x 不支援 {color} tag）
+    .replace(/\[需求原因\]/g, 'h3. 需求原因')
+    .replace(/\[需求描述\]/g, 'h3. 需求描述')
     // markdown 粗體 **text** → Jira 粗體 *text*
     .replace(/\*\*(.+?)\*\*/g, '*$1*')
     // 清除 AI 可能誤生成的殘留 {color} wiki tag
