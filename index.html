@@ -24,8 +24,11 @@
   .header-logo svg { width: 20px; height: 20px; fill: white; }
   .header-title { font-size: 15px; font-weight: 500; }
   .header-sub { font-size: 12px; color: var(--text-tertiary); margin-top: 1px; }
-  .nav { padding: 0.75rem 1.5rem; border-bottom: 1px solid var(--border); background: var(--bg); }
+  .nav { padding: 0.75rem 1.5rem; border-bottom: 1px solid var(--border); background: var(--bg); display: flex; align-items: center; justify-content: space-between; gap: 8px; }
   .nav-item { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; padding: 5px 12px; border-radius: var(--radius-md); background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
+  .nav-btn { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; font-family: 'DM Sans', sans-serif; padding: 5px 12px; border-radius: var(--radius-md); background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow-sm); cursor: pointer; color: var(--text-secondary); transition: all 0.15s; }
+  .nav-btn:hover { border-color: var(--border-hover); color: var(--text-primary); }
+  .nav-btn:disabled { opacity: 0.5; cursor: not-allowed; }
   .content { padding: 1.5rem; }
   .search-label { font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; display: block; }
 
@@ -277,6 +280,10 @@
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
       查詢 Jira
     </span>
+    <button class="nav-btn" id="reminder-btn" onclick="triggerReminder()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      觸發提醒信
+    </button>
   </div>
 
   <div class="content">
@@ -853,6 +860,30 @@ async function createDV2IN1() {
       btn.style.borderColor = '';
       btn.disabled       = false;
     }, 4000);
+  }
+}
+
+async function triggerReminder() {
+  var btn = document.getElementById('reminder-btn');
+  var origHTML = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation:spin 0.8s linear infinite"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg> 寄送中…';
+  try {
+    var res  = await fetch('/api/daily-reminder', { credentials: 'include' });
+    var data = await res.json();
+    if (data.success) {
+      var msg = data.emailsSent && data.emailsSent.length > 0
+        ? '已寄出 ' + data.emailsSent.length + ' 封提醒信'
+        : '今日無需提醒的工單';
+      showToast(msg);
+    } else {
+      showToast('寄送失敗：' + (data.error || '未知錯誤'));
+    }
+  } catch (e) {
+    showToast('連線失敗，請稍後再試');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = origHTML;
   }
 }
 
