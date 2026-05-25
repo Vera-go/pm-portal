@@ -29,6 +29,7 @@ const FIELDS = [
   'summary', 'duedate', 'reporter', 'status', 'subtasks',
   'customfield_12107', // SA_Due
   'customfield_12109', // UAT_Due
+  'customfield_13500', // Prod_Date
 ].join(',')
 
 // ─── 主 handler ─────────────────────────────────────────
@@ -107,7 +108,8 @@ function buildAlertMap(issues) {
     const {
       summary, duedate, reporter, subtasks = [],
       customfield_12107: saDue,
-      customfield_12109: uatDue
+      customfield_12109: uatDue,
+      customfield_13500: prodDate,
     } = fields
 
     if (!reporter?.emailAddress) continue
@@ -129,9 +131,10 @@ function buildAlertMap(issues) {
       if (days >= 0 && days <= 2) push('upcoming', 'UAT_Due', d, days)
     }
 
-    // Due：前 2 天提醒 + 逾期提醒
-    if (duedate) {
-      const d = parseDate(duedate), days = daysUntil(d)
+    // Due 上線日：優先使用 Prod_Date，無值時 fallback 到 duedate
+    const effectiveDue = prodDate || duedate
+    if (effectiveDue) {
+      const d = parseDate(effectiveDue), days = daysUntil(d)
       if (days >= 0 && days <= 2) {
         push('upcoming', 'Due 上線日', d, days)
       } else if (days < 0) {
