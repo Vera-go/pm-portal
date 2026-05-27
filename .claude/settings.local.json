@@ -6,7 +6,10 @@
       "Bash(Format-Table)",
       "Bash(npm install *)",
       "PowerShell(cd \"C:\\\\Users\\\\vera_chang\\\\Documents\\\\pm-portal\"; npm install --cache \"$env:USERPROFILE\\\\.npm-cache\" 2>&1)",
-      "Bash(npm audit *)"
+      "Bash(npm audit *)",
+      "mcp__mcp-registry__search_mcp_registry",
+      "mcp__mcp-registry__list_connectors",
+      "Bash(Get-ChildItem \"C:\\\\Users\\\\vera_chang\\\\.claude\\\\\" -Force | Select-Object Name, LastWriteTime)"
     ]
   }
 }
